@@ -38,15 +38,19 @@ jobs:
       - name: Build Windows installer
         run: npm run build-win
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release if missing
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          gh release create "${RELEASE_TAG}" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --title "Gestion Hamza ${RELEASE_TAG}" \
-            --generate-notes
+          if gh release view "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "Release ${RELEASE_TAG} already exists. Reusing it."
+          else
+            gh release create "${RELEASE_TAG}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "Gestion Hamza ${RELEASE_TAG}" \
+              --generate-notes
+          fi
 
       - name: Upload installer to GitHub Release
         env:
