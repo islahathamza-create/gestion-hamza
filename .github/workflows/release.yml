@@ -36,7 +36,7 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Build Windows installer
-        run: npm run build-win
+        run: npm run build-win -- --publish never
 
       - name: Create GitHub Release if missing
         env:
