@@ -3,13 +3,45 @@ const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
 let mainWindow = null;
+let updateDialogOpen = false;
+
+function showUpdateDialog(version, downloaded = false) {
+  if (!mainWindow || mainWindow.isDestroyed() || updateDialogOpen) return;
+  updateDialogOpen = true;
+
+  const title = downloaded
+    ? 'Gestion Hamza — التحديث جاهز'
+    : 'Gestion Hamza — تحديث جديد';
+  const message = downloaded
+    ? `النسخة ${version} جاهزة للتثبيت.`
+    : `كاينة نسخة جديدة من Gestion Hamza: ${version}`;
+  const detail = downloaded
+    ? 'يمكنك تثبيتها الآن. التطبيق غادي يعاود يفتح تلقائياً بعد التحديث.'
+    : 'غادي يبدأ تحميل التحديث تلقائياً. ما تحتاج تدير والو.';
+
+  dialog.showMessageBox(mainWindow, {
+    type: 'info',
+    title,
+    message,
+    detail,
+    buttons: downloaded ? ['تثبيت الآن', 'لاحقاً'] : ['حسناً'],
+    defaultId: 0,
+    cancelId: downloaded ? 1 : 0,
+  }).then(({ response }) => {
+    updateDialogOpen = false;
+    if (downloaded && response === 0) {
+      autoUpdater.quitAndInstall(false, true);
+    }
+  }).catch(() => {
+    updateDialogOpen = false;
+  });
+}
 
 function setupAutoUpdater() {
-  // Auto-update is only available for packaged builds (not `npm start`).
   if (!app.isPackaged) return;
 
   autoUpdater.autoDownload = true;
-  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.autoInstallOnAppQuit = false;
   autoUpdater.allowPrerelease = false;
 
   autoUpdater.on('checking-for-update', () => {
@@ -18,6 +50,7 @@ function setupAutoUpdater() {
 
   autoUpdater.on('update-available', (info) => {
     console.log(`[Updater] Update available: ${info.version}`);
+    showUpdateDialog(info.version, false);
   });
 
   autoUpdater.on('update-not-available', () => {
@@ -29,28 +62,17 @@ function setupAutoUpdater() {
   });
 
   autoUpdater.on('update-downloaded', (info) => {
-    dialog.showMessageBox(mainWindow, {
-      type: 'info',
-      title: 'Gestion Hamza - Mise à jour disponible',
-      message: `La version ${info.version} est prête à être installée.`,
-      detail: 'L’application va redémarrer pour terminer la mise à jour.',
-      buttons: ['Installer maintenant', 'Plus tard'],
-      defaultId: 0,
-      cancelId: 1
-    }).then(({ response }) => {
-      if (response === 0) {
-        autoUpdater.quitAndInstall(false, true);
-      }
-    });
+    console.log(`[Updater] Update downloaded: ${info.version}`);
+    showUpdateDialog(info.version, true);
   });
 
   autoUpdater.on('error', (error) => {
     console.error('[Updater] Error:', error);
   });
 
-  // Give the app a moment to finish loading before checking GitHub Releases.
+  // Give Electron a moment to finish loading before contacting GitHub Releases.
   setTimeout(() => {
-    autoUpdater.checkForUpdatesAndNotify().catch((error) => {
+    autoUpdater.checkForUpdates().catch((error) => {
       console.error('[Updater] Check failed:', error);
     });
   }, 5000);
@@ -74,7 +96,6 @@ function createWindow() {
   });
 
   Menu.setApplicationMenu(null);
-
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   mainWindow.once('ready-to-show', () => {
@@ -97,9 +118,7 @@ function createWindow() {
   });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (/^https?:\/\//i.test(url)) {
-      shell.openExternal(url);
-    }
+    if (/^https?:\/\//i.test(url)) shell.openExternal(url);
     return { action: 'deny' };
   });
 
