@@ -75,6 +75,152 @@
   .qty-adjust button { width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
   a.upload-btn { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; border:1px solid var(--border); border-radius:10px; padding:8px 12px; cursor:pointer; }
   .price-input-small { width:64px; font-size:12px; border-radius:6px; padding:2px 6px; }
+
+/* ================= Modern Gestion Hamza UI ================= */
+:root{
+  --bg:#f4f6f9;
+  --surface:#ffffff;
+  --ink:#172033;
+  --accent:#e97816;
+  --accent-2:#ff9b4a;
+  --muted:#7c8799;
+  --success:#2f8f63;
+  --danger:#c94a4a;
+  --border:#e6eaf0;
+  --tan:#f2a15a;
+  --green2:#77c59d;
+  --sidebar:#111827;
+  --sidebar-2:#1b2435;
+  --shadow:0 10px 30px rgba(20,30,50,.07);
+}
+html,body{min-height:100%;}
+body{background:var(--bg);color:var(--ink);font-family:'Tajawal','Segoe UI',sans-serif;}
+header.app-header{
+  margin-right:250px; max-width:none; min-height:126px; padding:22px 30px 24px;
+  background:linear-gradient(135deg,#182234 0%,#111827 100%);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+header.app-header .inner{max-width:none;}
+header.app-header h1{font-size:28px;letter-spacing:-.4px;}
+header.app-header p.sub{color:#aeb8c8;font-size:13px;}
+header.app-header .row{gap:10px;}
+#searchToggleBtn,#backupToggleBtn{width:38px!important;height:38px!important;border-radius:11px!important;background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.12)!important;transition:.2s;}
+#searchToggleBtn:hover,#backupToggleBtn:hover{background:rgba(255,255,255,.15)!important;transform:translateY(-1px);}
+nav.tabs{
+  position:fixed;right:0;top:0;bottom:0;width:250px;height:100vh;z-index:1000;
+  background:var(--sidebar);border:0;box-shadow:-8px 0 30px rgba(0,0,0,.08);overflow-y:auto;overflow-x:hidden;
+}
+nav.tabs .inner{max-width:none;width:100%;height:100%;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:20px 12px;}
+nav.tabs .inner:before{
+  content:'GESTION HAMZA';display:block;color:#fff;font-size:18px;font-weight:900;letter-spacing:.6px;padding:8px 14px 24px;text-align:right;
+}
+nav.tabs button{
+  width:100%;justify-content:flex-start;flex-direction:row;gap:11px;padding:12px 14px;border:0;border-radius:11px;
+  color:#aeb8c8;background:transparent;font-size:13px;font-weight:700;text-align:right;transition:.18s;
+}
+nav.tabs button:hover{background:var(--sidebar-2);color:#fff;transform:translateX(-2px);}
+nav.tabs button.active{background:linear-gradient(135deg,var(--accent),#f28c34);color:#fff;border:0;box-shadow:0 8px 20px rgba(233,120,22,.22);}
+.support-card{margin-top:auto;padding:14px 12px;border-radius:16px;background:linear-gradient(135deg,#1f2b40,#151d2b);border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 24px rgba(0,0,0,.18);}
+.support-card .support-title{color:#fff;font-size:14px;font-weight:900;margin:0 0 5px;}
+.support-card .support-text{color:#aeb8c8;font-size:11px;margin:0 0 10px;line-height:1.5;}
+.support-phone{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:44px;padding:10px 12px;border-radius:11px;background:#fff;color:#182536!important;text-decoration:none;font-size:16px;font-weight:900;letter-spacing:.4px;box-sizing:border-box;}
+.support-phone:hover{background:#f7f7f7;transform:translateY(-1px);}
+.support-wa{display:flex;align-items:center;justify-content:center;width:100%;min-height:40px;margin-top:8px;padding:9px 12px;border-radius:11px;background:#25D366;color:#fff!important;text-decoration:none;font-size:13px;font-weight:900;box-sizing:border-box;}
+.support-wa:hover{filter:brightness(.95);transform:translateY(-1px);}
+main{max-width:none;margin:0 0 0 0;margin-right:250px;padding:26px 30px 100px;}
+.card,.list,.checkout-bar{border-color:var(--border);border-radius:18px;box-shadow:var(--shadow);}
+.card{padding:20px;}
+.list{background:var(--surface);}
+.list>.item{padding:14px 16px;border-color:var(--border);transition:.15s;}
+.list>.item:hover{background:#fafbfc;}
+input[type=text],input[type=number],input[type=tel]{border-color:#dfe4eb;border-radius:11px;background:#fff;padding:11px 13px;transition:.18s;}
+input[type=text]:focus,input[type=number]:focus,input[type=tel]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(233,120,22,.10);}
+.btn{border-radius:11px;padding:10px 17px;transition:.18s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 15px rgba(20,30,50,.10);}
+.btn-accent{background:linear-gradient(135deg,var(--accent),#f28b32);box-shadow:0 6px 15px rgba(233,120,22,.18);}
+.btn-success{background:linear-gradient(135deg,#2f8f63,#3ca979);}
+.btn-danger{background:linear-gradient(135deg,#c94a4a,#dc6262);}
+.btn-outline{background:#fff;border-color:var(--border);}
+.stat-box{border-radius:18px;background:linear-gradient(135deg,#182234,#111827);box-shadow:var(--shadow);}
+.stat-value{font-size:22px;}
+.bar-track{background:#edf0f4;}
+.bar-fill{background:linear-gradient(90deg,var(--accent),var(--accent-2));}
+.badge{border-radius:8px;padding:4px 8px;}
+.filter-btn{border-radius:9px;background:#fff;border-color:var(--border);}
+.filter-btn.active{background:var(--ink);}
+.checkout-bar{box-shadow:0 12px 30px rgba(20,30,50,.12);}
+.thumb{border-color:var(--border);background:#f7f8fa;}
+.empty{padding:70px 15px;color:#9099a8;}
+#adminSecurityBar{border-radius:12px!important;background:rgba(17,24,39,.96)!important;box-shadow:0 10px 30px rgba(0,0,0,.16)!important;}
+.low-stock-banner{background:rgba(201,74,74,.09);border-color:rgba(201,74,74,.18);color:#b33f3f;}
+#searchPanel,#backupPanel{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.12)!important;}
+#globalSearchInput{border:0!important;box-shadow:none!important;}
+@media(max-width:900px){
+  header.app-header{margin-right:0;padding:18px 16px 22px;}
+  nav.tabs{position:sticky;top:0;right:auto;bottom:auto;width:100%;height:auto;overflow-x:auto;overflow-y:hidden;box-shadow:0 5px 18px rgba(20,30,50,.06);}
+  nav.tabs .inner{height:auto;flex-direction:row;align-items:center;gap:2px;padding:6px 8px;min-width:max-content;}
+  nav.tabs .inner:before{display:none;}
+  nav.tabs button{width:auto;justify-content:center;border-radius:9px;padding:10px 12px;}
+  nav.tabs button:hover{transform:none;}
+  main{margin-right:0;padding:18px 14px 90px;}
+}
+@media(max-width:600px){
+  header.app-header h1{font-size:22px;}
+  .grid2,.grid3{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .checkout-bar{flex-direction:column;align-items:stretch;}
+  .checkout-bar .row{justify-content:space-between;}
+}
+
+
+/* ===== V2.1 - HIGH VISIBILITY BUTTONS ===== */
+button, .btn, .filter-btn, a.upload-btn, label.btn {
+  min-height: 42px;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  letter-spacing: .1px;
+  border-radius: 11px !important;
+}
+.btn {
+  padding: 11px 20px !important;
+  border-width: 2px !important;
+}
+.btn-accent, .btn-success, .btn-danger {
+  color: #fff !important;
+  text-shadow: 0 1px 1px rgba(0,0,0,.18);
+}
+.btn-accent { box-shadow: 0 4px 0 rgba(185,86,0,.35), 0 8px 18px rgba(233,120,22,.20) !important; }
+.btn-success { box-shadow: 0 4px 0 rgba(30,95,65,.30), 0 8px 18px rgba(47,143,99,.16) !important; }
+.btn-danger { box-shadow: 0 4px 0 rgba(130,35,35,.28), 0 8px 18px rgba(201,74,74,.16) !important; }
+.btn-outline, .filter-btn, a.upload-btn {
+  border: 2px solid #c9d0d8 !important;
+  background: #fff !important;
+  color: #182536 !important;
+}
+.btn:hover, .filter-btn:hover, a.upload-btn:hover { transform: translateY(-1px); filter: brightness(.98); }
+.btn:active, .filter-btn:active { transform: translateY(1px); }
+nav.tabs button {
+  min-height: 48px;
+  padding: 12px 17px !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+.filter-btn { padding: 9px 16px !important; }
+.qty-adjust button {
+  width: 38px !important; height: 38px !important;
+  min-height: 38px !important;
+  border: 2px solid #c9d0d8 !important;
+  background: #fff !important;
+  color: #182536 !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+}
+#searchToggleBtn, #backupToggleBtn {
+  width: 44px !important; height: 44px !important;
+  min-height: 44px !important;
+  border: 2px solid rgba(255,255,255,.28) !important;
+}
+
 </style>
 </head>
 <body>
@@ -92,7 +238,7 @@
         <button id="searchToggleBtn" onclick="toggleSearchPanel()" style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:var(--bg); width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </button>
-        <button id="backupToggleBtn" onclick="toggleBackupPanel()" style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:var(--bg); width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+        <button id="backupToggleBtn" onclick="toggleSettingsPanel()" title="الإعدادات" aria-label="الإعدادات" style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:var(--bg); width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
       </div>
@@ -102,7 +248,22 @@
       <input type="text" id="globalSearchInput" placeholder="قلب على منتج، زبون، دين، إصلاح..." style="background:rgba(255,255,255,.9);" oninput="renderGlobalSearchResults(this.value)">
       <div id="globalSearchResults" style="margin-top:8px;"></div>
     </div>
-    <div id="backupPanel" class="hidden" style="margin-top:14px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px;">
+    <div id="settingsPanel" class="hidden" style="margin-top:14px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
+        <div>
+          <p style="margin:0;color:#FAF6EF;font-size:15px;font-weight:900;">⚙️ الإعدادات</p>
+          <p style="margin:3px 0 0;color:#C9B8A3;font-size:12px;">الأمان والنسخ الاحتياطي</p>
+        </div>
+        <span id="adminState" style="font-size:11px;color:#C9B8A3;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);padding:5px 9px;border-radius:999px;">مقفولة</span>
+      </div>
+      <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:12px;">
+        <p style="margin:0 0 4px;color:#FAF6EF;font-weight:800;font-size:13px;">🔐 أمان المسؤول</p>
+        <p style="margin:0 0 10px;color:#C9B8A3;font-size:12px;">بدّل كلمة السر من هنا، بلا ما تبقى فأسفل الشاشة.</p>
+        <button class="btn btn-accent" onclick="changeAdminPassword();" style="padding:9px 14px;font-size:13px;font-weight:800;">🔑 تغيير كلمة السر</button>
+      </div>
+      </div>
+    </div>
+    <div id="backupPanel" style="margin-top:14px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px;">
       <p style="font-size:12px; color:#C9B8A3; margin:0 0 8px;">نسخة احتياطية — صدر البيانات لملف باش تحتفظ بيه، ولا رجعها من ملف قديم</p>
       <div class="row">
         <button class="btn btn-accent" style="padding:8px 14px; font-size:12px;" onclick="exportBackup()">⬇️ صدر نسخة احتياطية</button>
@@ -121,12 +282,6 @@
   <svg class="barcode-stripe" style="right:24px; top:-8px; opacity:.25; transform:rotate(180deg);" width="140" height="30"></svg>
 </header>
 
-<!-- Windows-style admin security badge -->
-<div id="adminSecurityBar" style="position:fixed;bottom:12px;right:14px;z-index:9999;display:flex;align-items:center;gap:8px;background:rgba(20,20,20,.92);border:1px solid rgba(255,255,255,.12);padding:7px 10px;border-radius:10px;box-shadow:0 8px 25px rgba(0,0,0,.25);font-size:11px;color:#eee;">
-  <span>🔒 حماية المسؤول</span>
-  <span id="adminState" style="opacity:.65;">مقفولة</span>
-  <button onclick="changeAdminPassword()" style="border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:7px;padding:5px 8px;cursor:pointer;font-size:11px;">تغيير كلمة السر</button>
-</div>
 
 <!-- نافذة إدخال بديلة عن prompt() اللي ما كتخدمش داخل تطبيق ويندوز (Electron) -->
 <div id="promptModalOverlay" style="position:fixed; inset:0; background:rgba(20,15,10,.55); z-index:99999; display:none; align-items:center; justify-content:center; padding:16px;">
@@ -233,7 +388,7 @@ function persist() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ products: state.products, sales: state.sales, orders: state.orders, repairs: state.repairs, debts: state.debts, expenses: state.expenses, cashOpenings: state.cashOpenings }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ products: state.products, sales: state.sales, returns: state.returns, orders: state.orders, repairs: state.repairs, debts: state.debts, expenses: state.expenses, cashOpenings: state.cashOpenings }));
       badge.textContent = "تم الحفظ"; badge.classList.add("saved");
     } catch (e) { badge.textContent = "خطأ فالحفظ"; }
     setTimeout(() => badge.classList.remove("show"), 1200);
@@ -245,11 +400,14 @@ const saved = loadData();
 const state = {
   products: (saved && saved.products) || {},
   sales: (saved && saved.sales) || [],
+  returns: (saved && saved.returns) || [],
   orders: (saved && saved.orders) || [],
   repairs: (saved && saved.repairs) || [],
   debts: (saved && saved.debts) || [],
   expenses: (saved && saved.expenses) || [],
   cart: [],
+  posMode: "sale",
+  lastReturn: null,
   tab: "pos",
   lastScanned: null,
   lastReceiptSaleId: null,
@@ -334,6 +492,7 @@ async function resetAllData() {
   state.cart = [];
   save();
   document.getElementById("backupPanel").classList.add("hidden");
+  document.getElementById("settingsPanel").classList.add("hidden");
   alert("✅ تصفرت جميع البيانات. كولشي رجع 0.");
   render();
 }
@@ -341,10 +500,17 @@ async function resetAllData() {
 function toggleBackupPanel() {
   document.getElementById("backupPanel").classList.toggle("hidden");
   document.getElementById("searchPanel").classList.add("hidden");
+  document.getElementById("settingsPanel").classList.add("hidden");
+}
+function toggleSettingsPanel() {
+  document.getElementById("settingsPanel").classList.toggle("hidden");
+  document.getElementById("searchPanel").classList.add("hidden");
+  document.getElementById("backupPanel").classList.add("hidden");
 }
 function toggleSearchPanel() {
   document.getElementById("searchPanel").classList.toggle("hidden");
   document.getElementById("backupPanel").classList.add("hidden");
+  document.getElementById("settingsPanel").classList.add("hidden");
   const panel = document.getElementById("searchPanel");
   if (!panel.classList.contains("hidden")) {
     setTimeout(() => document.getElementById("globalSearchInput").focus(), 50);
@@ -386,7 +552,7 @@ function renderGlobalSearchResults(query) {
 }
 
 function exportBackup() {
-  const data = { products: state.products, sales: state.sales, orders: state.orders, repairs: state.repairs, debts: state.debts, expenses: state.expenses, cashOpenings: state.cashOpenings, exportedAt: new Date().toISOString() };
+  const data = { products: state.products, sales: state.sales, returns: state.returns, orders: state.orders, repairs: state.repairs, debts: state.debts, expenses: state.expenses, cashOpenings: state.cashOpenings, exportedAt: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -411,6 +577,7 @@ function importBackup(inputEl) {
       if (!ok) { inputEl.value = ""; return; }
       state.products = data.products || {};
       state.sales = data.sales || [];
+      state.returns = data.returns || [];
       state.orders = data.orders || [];
       state.repairs = data.repairs || [];
       state.debts = data.debts || [];
@@ -584,7 +751,13 @@ function renderTabs() {
   const el = document.getElementById("tabButtons");
   el.innerHTML = TABS.map(([key, label, icon]) =>
     `<button class="${state.tab === key ? "active" : ""}" onclick="setTab('${key}')">${ICONS[icon]}${label}</button>`
-  ).join("");
+  ).join("") + `
+    <div class="support-card">
+      <p class="support-title">🆘 الدعم والمساعدة</p>
+      <p class="support-text">إلا وقع ليك شي مشكل فالتطبيق، تواصل معنا مباشرة.</p>
+      <a class="support-phone" href="tel:0610631012">📞 0610631012</a>
+      <a class="support-wa" href="https://wa.me/212610631012" target="_blank" rel="noopener">💬 تواصل عبر WhatsApp</a>
+    </div>`;
   const badge = document.getElementById("adminState");
   if (badge) { badge.textContent = isAdminUnlocked() ? "مفتوحة مؤقتاً" : "مقفولة"; badge.style.opacity = isAdminUnlocked() ? "1" : ".65"; }
 }
@@ -627,35 +800,44 @@ function afterRenderHooks() {
 function renderPOS() {
   const total = state.cart.reduce((s, i) => s + i.price * i.qty, 0);
   const cartMargin = state.cart.reduce((s, i) => s + (i.price - (i.costPrice || 0)) * i.qty, 0);
+  const isReturn = state.posMode === "return";
   return `
     <div class="space-y">
       <div class="card">
+        <div class="row" style="margin-bottom:12px;">
+          <button class="btn ${!isReturn ? 'btn-accent' : 'btn-outline'}" style="flex:1; padding:12px 16px; font-size:14px;" onclick="setPosMode('sale')">🛒 بيع</button>
+          <button class="btn ${isReturn ? 'btn-danger' : 'btn-outline'}" style="flex:1; padding:12px 16px; font-size:14px;" onclick="setPosMode('return')">↩️ روتور / إرجاع</button>
+        </div>
+        <div style="background:${isReturn ? 'rgba(176,69,59,.08)' : 'rgba(240,119,13,.08)'}; border:1px solid ${isReturn ? 'rgba(176,69,59,.25)' : 'rgba(240,119,13,.25)'}; border-radius:12px; padding:10px 12px; margin-bottom:12px;">
+          <p style="margin:0; font-weight:900; font-size:13px; color:${isReturn ? 'var(--danger)' : 'var(--accent)'};">${isReturn ? '↩️ وضع الروتور: سكانا المنتج وغادي يرجع مباشرة للستوك' : '🛒 وضع البيع: سكانا المنتج، راجع الثمن، ومن بعد أتمم البيع'}</p>
+          <p style="margin:3px 0 0; font-size:11px; color:var(--muted);">${isReturn ? 'الثمن الحالي غادي يبان، والكمية غادي تزيد 1 فالستوك مباشرة.' : 'الثمن والكمية غادي يبانوا مباشرة من بعد السكان.'}</p>
+        </div>
         <label class="field-label">سكانا الكود بار هنا</label>
         <div class="scan-input-wrap">
           ${ICONS.scan}
           <input type="text" id="barcodeInput" placeholder="فوكاصي هنا وسكانا..."
-            onkeydown="if(event.key==='Enter'){posScan(this.value); this.value='';}">
+            onkeydown="if(event.key==='Enter'){${isReturn ? 'posReturnScan' : 'posScan'}(this.value); this.value='';}">
         </div>
         ${state.notice ? `<div class="notice" style="background:${state.notice.type === 'ok' ? 'rgba(76,122,82,.1)' : state.notice.type === 'warn' ? 'rgba(240,119,13,.12)' : 'rgba(176,69,59,.1)'}; color:${state.notice.type === 'ok' ? 'var(--success)' : state.notice.type === 'warn' ? 'var(--accent)' : 'var(--danger)'}; font-weight:${state.notice.type === 'warn' ? '700' : '400'};">${esc(state.notice.text)}</div>` : ""}
-        ${renderLastScanned()}
+        ${isReturn ? renderLastReturn() : renderLastScanned()}
         <button class="btn" style="background:none; color:var(--accent); padding:0; margin-top:12px; display:flex; align-items:center; gap:6px; font-size:12px;" onclick="toggleManual()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           منتج بلا كود بار
         </button>
-        ${state.showManual ? renderManualForm() : ""}
+        ${!isReturn && state.showManual ? renderManualForm() : ""}
       </div>
 
-      <div class="list">
+      ${!isReturn ? `<div class="list">
         ${state.cart.length === 0 ? `<div class="empty">${ICONS.cart}<br/>السلة فارغة — سكانا منتج باش تبدا</div>` : state.cart.map(item => renderCartRow(item)).join("")}
-      </div>
+      </div>` : ""}
 
-      ${state.cart.length === 0 && state.lastReceiptSaleId ? `
+      ${!isReturn && state.cart.length === 0 && state.lastReceiptSaleId ? `
       <div class="card row" style="justify-content:space-between;">
         <span class="muted" style="font-size:13px;">✓ تم البيع الأخير بنجاح</span>
         <button class="btn btn-outline" style="padding:7px 14px; font-size:12px;" onclick="printSaleReceipt(${state.lastReceiptSaleId})">🧾 طباعة تيكيت</button>
       </div>` : ""}
 
-      ${state.cart.length > 0 ? `
+      ${!isReturn && state.cart.length > 0 ? `
       <div class="checkout-bar">
         <div>
           <p class="muted" style="font-size:12px; margin:0;">المجموع</p>
@@ -669,6 +851,50 @@ function renderPOS() {
       </div>` : ""}
     </div>
   `;
+}
+
+function setPosMode(mode) {
+  state.posMode = mode;
+  state.notice = null;
+  state.lastReturn = null;
+  if (mode === "return") state.showManual = false;
+  render();
+}
+
+function renderLastReturn() {
+  const r = state.lastReturn;
+  if (!r) return `<div style="margin-top:12px; padding:12px; border-radius:12px; background:var(--bg); color:var(--muted); font-size:12px;">↩️ سكانا كود المنتج باش يرجع للستوك.</div>`;
+  if (!r.found) return `<div class="row" style="margin-top:12px; background:rgba(176,69,59,.08); border-radius:12px; padding:12px; border:1px solid rgba(176,69,59,.2);"><div class="thumb" style="width:72px;height:72px;">${ICONS.image}</div><div><p style="color:var(--danger);font-weight:800;margin:0;">الكود "${esc(r.code)}" غير موجود فالمنتجات</p><p class="muted" style="font-size:11px;margin:3px 0 0;">ما قدرناش نرجع هاد المنتج للستوك.</p></div></div>`;
+  return `<div class="row" style="margin-top:12px; background:rgba(76,122,82,.08); border-radius:12px; padding:12px; border:1px solid rgba(76,122,82,.2);">
+    <div class="thumb" style="width:82px;height:82px;">${r.image ? `<img src="${r.image}"/>` : ICONS.image}</div>
+    <div style="flex:1;min-width:0;">
+      <p style="font-weight:900;margin:0;color:var(--success);">↩️ ${esc(r.name)}</p>
+      <p style="margin:3px 0;font-size:12px;">الثمن: <b>${fmt(r.price)} د.م</b></p>
+      <p style="margin:3px 0;font-size:12px;color:var(--success);font-weight:800;">رجعنا 1 للستوك — دابا: ${r.newQty}</p>
+    </div>
+  </div>`;
+}
+
+function posReturnScan(code) {
+  const c = (code || "").trim();
+  if (!c) return;
+  const p = state.products[c];
+  if (!p) {
+    playBeep("error");
+    state.lastReturn = { found:false, code:c };
+    state.notice = { type:"error", text:`الكود "${c}" غير موجود فالمنتجات` };
+    render();
+    return;
+  }
+  p.qty = (parseInt(p.qty) || 0) + 1;
+  const entry = { id: Date.now(), date: nowLabel(), barcode:c, name:p.name, price:parseFloat(p.price)||0, qty:1 };
+  state.returns.unshift(entry);
+  state.lastReturn = { found:true, name:p.name, image:p.image, price:p.price, newQty:p.qty };
+  state.notice = { type:"ok", text:`↩️ رجعنا "${p.name}" للستوك` };
+  playBeep("ok");
+  save();
+  render();
+  setTimeout(() => { state.notice = null; if (state.tab === "pos" && state.posMode === "return") render(); }, 2200);
 }
 
 function renderLastScanned() {
@@ -703,20 +929,35 @@ function renderManualForm() {
   return `
   <div style="margin-top:12px; background:var(--bg); border-radius:12px; padding:12px;" class="space-y">
     <div>
-      <label class="field-label">اسم المنتج</label>
-      <input type="text" value="${esc(f.name)}" placeholder="مثلا: خدمة تصليح" oninput="state.manualForm.name=this.value">
+      <label class="field-label">🏷️ اسم المنتج</label>
+      <input type="text" value="${esc(f.name)}" placeholder="مثلا: Chargeur / Câble / Service" oninput="state.manualForm.name=this.value">
     </div>
     <div class="grid3">
-      <div><label class="field-label">تمن الجملة</label><input type="number" step="0.01" value="${esc(f.costPrice)}" oninput="state.manualForm.costPrice=this.value"></div>
-      <div><label class="field-label">تمن البيع</label><input type="number" step="0.01" value="${esc(f.price)}" oninput="state.manualForm.price=this.value"></div>
-      <div><label class="field-label">الكمية</label><input type="number" min="1" value="${esc(f.qty)}" oninput="state.manualForm.qty=this.value"></div>
+      <div><label class="field-label">📦 ثمن الشراء بالجملة</label><input type="number" min="0" step="0.01" value="${esc(f.costPrice)}" placeholder="0.00" oninput="state.manualForm.costPrice=this.value; renderManualProfit();"></div>
+      <div><label class="field-label">💰 ثمن البيع</label><input type="number" min="0" step="0.01" value="${esc(f.price)}" placeholder="0.00" oninput="state.manualForm.price=this.value; renderManualProfit();"></div>
+      <div><label class="field-label">🔢 الكمية</label><input type="number" min="1" value="${esc(f.qty)}" oninput="state.manualForm.qty=this.value; renderManualProfit();"></div>
     </div>
+    <div id="manualProfitBox" class="notice" style="background:rgba(76,122,82,.1); color:var(--success); font-weight:700;">${manualProfitText()}</div>
     ${state.manualError ? `<p style="color:var(--danger); font-size:12px; margin:0;">${esc(state.manualError)}</p>` : ""}
     <div class="row">
-      <button class="btn btn-accent" onclick="addManualItem()">زيد للسلة</button>
+      <button class="btn btn-accent" onclick="addManualItem()">➕ زيد للسلة</button>
       <button class="btn btn-outline" onclick="cancelManual()">إلغاء</button>
     </div>
   </div>`;
+}
+
+function manualProfitText() {
+  const cost = parseFloat(state.manualForm.costPrice) || 0;
+  const price = parseFloat(state.manualForm.price) || 0;
+  const qty = Math.max(1, parseInt(state.manualForm.qty) || 1);
+  const unit = price - cost;
+  const total = unit * qty;
+  const cls = unit >= 0 ? "var(--success)" : "var(--danger)";
+  return `📈 الربح: <b style="color:${cls}">${fmt(total)} د.م</b> (${fmt(unit)} د.م للوحدة)`;
+}
+function renderManualProfit() {
+  const el = document.getElementById("manualProfitBox");
+  if (el) el.innerHTML = manualProfitText();
 }
 
 function renderCartRow(item) {
@@ -1392,6 +1633,10 @@ function renderSaleRow(s) {
   </div>`;
 }
 function toggleSaleOpen(id) { state.salesOpen = state.salesOpen === id ? null : id; render(); }
+function askReturnSale(id) {
+  state.confirmReturn = state.confirmReturn === id ? null : id;
+  render();
+}
 async function doReturn(id) {
   if (!(await requireAdmin("إرجاع/تعديل عملية بيع"))) return;
   const sale = state.sales.find(s => s.id === id);
