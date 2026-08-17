@@ -25,7 +25,24 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Build and publish Windows installer
+      - name: Build Windows installer
+        run: npm run build-win
+
+      - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run release
+        shell: bash
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "Gestion Hamza ${GITHUB_REF_NAME}" \
+            --generate-notes
+
+      - name: Upload installer to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          gh release upload "${GITHUB_REF_NAME}" dist/*.exe dist/*.blockmap dist/latest.yml \
+            --repo "${GITHUB_REPOSITORY}" \
+            --clobber
