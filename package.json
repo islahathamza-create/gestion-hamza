@@ -1,0 +1,48 @@
+{
+  "name": "gestion-hamza",
+  "version": "1.0.1",
+  "description": "Application Windows de gestion de stock, caisse, ventes, reparations et dettes - Islahat Hamza",
+  "main": "main.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win",
+    "build-win": "electron-builder --win",
+    "release": "electron-builder --win --publish always"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.hamza.gestion",
+    "productName": "Gestion Hamza",
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "icon.ico",
+      "package.json"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "islahathamza-create",
+        "repo": "gestion-hamza",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  }
+}

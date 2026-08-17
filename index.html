@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إصلاحات حمزة - تسيير</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
+  :root {
+    --bg: #FAF6EF; --surface: #FFFFFF; --ink: #2B2118; --accent: #F0770D;
+    --muted: #8C7A68; --success: #4C7A52; --danger: #B0453B; --border: #E4D9C8;
+    --tan: #D8925F; --green2: #8FAE8F;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:'Tajawal','Segoe UI',sans-serif; }
+  button, input { font-family: inherit; }
+  .hidden { display:none !important; }
+  header.app-header { position:relative; background:var(--ink); color:var(--bg); padding:24px 16px 32px; overflow:hidden; }
+  header.app-header .inner { max-width:900px; margin:0 auto; position:relative; z-index:2; }
+  header.app-header h1 { font-size:26px; font-weight:900; margin:0; }
+  header.app-header p.sub { color:#C9B8A3; font-size:14px; margin:4px 0 0; }
+  .save-badge { font-size:11px; padding:4px 10px; border-radius:999px; border:1px solid var(--tan); color:var(--tan); opacity:0; transition:opacity .2s; }
+  .save-badge.show { opacity:1; }
+  .save-badge.saved { border-color:var(--green2); color:var(--green2); }
+  .low-stock-banner { margin-top:14px; display:inline-flex; align-items:center; gap:8px; background:rgba(176,69,59,.2); border:1px solid rgba(176,69,59,.4); color:#E8B4AC; font-size:13px; padding:6px 12px; border-radius:10px; }
+  .barcode-stripe { position:absolute; display:flex; align-items:flex-end; gap:2px; color:var(--accent); }
+  nav.tabs { position:sticky; top:0; z-index:20; background:rgba(250,246,239,.95); backdrop-filter:blur(6px); border-bottom:1px solid var(--border); overflow-x:auto; }
+  nav.tabs .inner { max-width:900px; margin:0 auto; display:flex; gap:2px; padding:0 12px; }
+  nav.tabs button { display:flex; align-items:center; gap:6px; padding:12px 16px; font-size:14px; font-weight:700; white-space:nowrap; background:none; border:none; border-bottom:2px solid transparent; color:var(--muted); cursor:pointer; }
+  nav.tabs button.active { color:var(--accent); border-color:var(--accent); }
+  main { max-width:900px; margin:0 auto; padding:16px; padding-bottom:96px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; }
+  .space-y > * + * { margin-top:12px; }
+  label.field-label { font-size:12px; color:var(--muted); display:block; margin-bottom:4px; font-weight:700; }
+  input[type=text], input[type=number], input[type=tel] {
+    width:100%; border:1px solid var(--border); border-radius:10px; padding:9px 12px; font-size:14px; outline:none; background:#fff; color:var(--ink);
+  }
+  input:focus { border-color:var(--accent); }
+  .btn { border:none; border-radius:10px; font-weight:700; font-size:13px; padding:10px 18px; cursor:pointer; }
+  .btn-accent { background:var(--accent); color:#fff; }
+  .btn-outline { background:transparent; border:1px solid var(--border); color:var(--ink); }
+  .btn-danger { background:var(--danger); color:#fff; }
+  .btn-success { background:var(--success); color:#fff; }
+  .row { display:flex; align-items:center; gap:12px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .muted { color:var(--muted); }
+  .thumb { border-radius:10px; border:1px solid var(--border); background:var(--bg); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; }
+  .thumb img { width:100%; height:100%; object-fit:cover; }
+  .list { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+  .list > .item { padding:12px; border-bottom:1px solid var(--border); }
+  .list > .item:last-child { border-bottom:none; }
+  .empty { text-align:center; color:var(--muted); padding:56px 12px; }
+  .badge { font-size:10px; font-weight:700; padding:3px 8px; border-radius:999px; }
+  .badge-green { background:rgba(76,122,82,.1); color:var(--success); }
+  .badge-red { background:rgba(176,69,59,.1); color:var(--danger); }
+  .badge-gray { background:rgba(140,122,104,.1); color:var(--muted); }
+  .scan-input-wrap { position:relative; }
+  .scan-input-wrap svg { position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--accent); }
+  #barcodeInput { padding-right:38px; font-size:18px; font-family:monospace; letter-spacing:1px; border:2px solid var(--border); border-radius:12px; padding-top:12px; padding-bottom:12px; }
+  #barcodeInput:focus { border-color:var(--accent); }
+  .notice { margin-top:8px; font-size:13px; padding:8px 12px; border-radius:10px; }
+  .checkout-bar { position:sticky; bottom:12px; background:#fff; border:1px solid var(--border); border-radius:16px; padding:16px; display:flex; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 8px 24px rgba(0,0,0,.08); }
+  .stat-box { background:var(--ink); color:var(--bg); border-radius:16px; padding:16px; }
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .stat-grid .col-full { grid-column: span 2; padding-top:12px; border-top:1px solid rgba(255,255,255,.1); }
+  .stat-label { font-size:10px; color:#C9B8A3; margin-bottom:2px; }
+  .stat-value { font-size:20px; font-weight:900; }
+  .bar-track { height:6px; background:var(--bg); border-radius:999px; overflow:hidden; margin-top:4px; }
+  .bar-fill { height:100%; background:var(--accent); border-radius:999px; }
+  .filter-btn { font-size:11px; font-weight:700; padding:5px 12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; }
+  .filter-btn.active { background:var(--ink); color:#fff; border-color:var(--ink); }
+  .filter-btn.active-danger { background:var(--danger); color:#fff; border-color:var(--danger); }
+  .qty-adjust { display:flex; align-items:center; gap:6px; }
+  .qty-adjust button { width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  a.upload-btn { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; border:1px solid var(--border); border-radius:10px; padding:8px 12px; cursor:pointer; }
+  .price-input-small { width:64px; font-size:12px; border-radius:6px; padding:2px 6px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="inner">
+    <div class="row" style="justify-content:space-between; align-items:flex-start;">
+      <div>
+        <h1>إصلاحات حمزة</h1>
+        <p class="sub">تسيير المخزون ونقطة البيع بالكود بار</p>
+        <p class="sub" id="todayDate" style="margin-top:4px; font-weight:700; color:var(--tan);"></p>
+      </div>
+      <div class="row" style="gap:8px;">
+        <span id="saveBadge" class="save-badge">تم الحفظ</span>
+        <button id="searchToggleBtn" onclick="toggleSearchPanel()" style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:var(--bg); width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button id="backupToggleBtn" onclick="toggleBackupPanel()" style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:var(--bg); width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="lowStockBanner"></div>
+    <div id="searchPanel" class="hidden" style="margin-top:14px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px;">
+      <input type="text" id="globalSearchInput" placeholder="قلب على منتج، زبون، دين، إصلاح..." style="background:rgba(255,255,255,.9);" oninput="renderGlobalSearchResults(this.value)">
+      <div id="globalSearchResults" style="margin-top:8px;"></div>
+    </div>
+    <div id="backupPanel" class="hidden" style="margin-top:14px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px;">
+      <p style="font-size:12px; color:#C9B8A3; margin:0 0 8px;">نسخة احتياطية — صدر البيانات لملف باش تحتفظ بيه، ولا رجعها من ملف قديم</p>
+      <div class="row">
+        <button class="btn btn-accent" style="padding:8px 14px; font-size:12px;" onclick="exportBackup()">⬇️ صدر نسخة احتياطية</button>
+        <label class="btn btn-outline" style="padding:8px 14px; font-size:12px; cursor:pointer; background:rgba(255,255,255,.9);">
+          ⬆️ رجع من ملف
+          <input type="file" accept="application/json" class="hidden" onchange="importBackup(this)">
+        </label>
+      </div>
+      <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,.12);">
+        <p style="font-size:12px; color:#E8B4AC; margin:0 0 8px;">⚠️ تصفير البيانات — كيمسح كولشي نهائياً (منتجات، هواتف، بيع، طلبيات، إصلاحات، ديون، مصاريف) ويرجع كولشي 0. دير نسخة احتياطية قبل!</p>
+        <button class="btn btn-danger" style="padding:8px 14px; font-size:12px;" onclick="resetAllData()">🗑️ صفر كلشي</button>
+      </div>
+    </div>
+  </div>
+  <svg class="barcode-stripe" style="left:-4px; bottom:0; opacity:.4;" width="140" height="30"></svg>
+  <svg class="barcode-stripe" style="right:24px; top:-8px; opacity:.25; transform:rotate(180deg);" width="140" height="30"></svg>
+</header>
+
+<!-- Windows-style admin security badge -->
+<div id="adminSecurityBar" style="position:fixed;bottom:12px;right:14px;z-index:9999;display:flex;align-items:center;gap:8px;background:rgba(20,20,20,.92);border:1px solid rgba(255,255,255,.12);padding:7px 10px;border-radius:10px;box-shadow:0 8px 25px rgba(0,0,0,.25);font-size:11px;color:#eee;">
+  <span>🔒 حماية المسؤول</span>
+  <span id="adminState" style="opacity:.65;">مقفولة</span>
+  <button onclick="changeAdminPassword()" style="border:0;background:rgba(255,255,255,.1);color:#fff;border-radius:7px;padding:5px 8px;cursor:pointer;font-size:11px;">تغيير كلمة السر</button>
+</div>
+
+<!-- نافذة إدخال بديلة عن prompt() اللي ما كتخدمش داخل تطبيق ويندوز (Electron) -->
+<div id="promptModalOverlay" style="position:fixed; inset:0; background:rgba(20,15,10,.55); z-index:99999; display:none; align-items:center; justify-content:center; padding:16px;">
+  <div style="background:var(--surface); border-radius:16px; padding:20px; max-width:340px; width:100%; box-shadow:0 20px 50px rgba(0,0,0,.35);">
+    <p id="promptModalMsg" style="white-space:pre-line; font-weight:700; margin:0 0 12px; font-size:14px; color:var(--ink);"></p>
+    <input id="promptModalInput" type="password" style="margin-bottom:14px;">
+    <div class="row" style="justify-content:flex-end; gap:8px;">
+      <button id="promptModalCancel" class="btn btn-outline" style="padding:7px 14px; font-size:13px;">إلغاء</button>
+      <button id="promptModalOk" class="btn btn-accent" style="padding:7px 14px; font-size:13px;">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<nav class="tabs">
+  <div class="inner" id="tabButtons"></div>
+</nav>
+
+<main id="mainContent"></main>
+
+<script>
+/* ================= Storage ================= */
+const STORAGE_KEY = "gestion-codebar-data";
+const PW_KEY = "gestion-codebar-stock-pw";
+// حماية المسؤول: كلمة السر لا تظهر للموظف داخل الواجهة.
+// يمكن تغييرها لاحقاً من ملف الإعدادات الداخلي.
+const DEFAULT_ADMIN_PASSWORD = "2000";
+const RECOVERY_CODE = "HAMZA-RECOVER-2000";
+let adminUnlockedUntil = 0;
+function getStockPw() { return localStorage.getItem(PW_KEY) || DEFAULT_ADMIN_PASSWORD; }
+function isAdminUnlocked() { return Date.now() < adminUnlockedUntil; }
+async function requireAdmin(actionLabel = "هاد العملية") {
+  if (isAdminUnlocked()) return true;
+  const pw = await showPromptModal("🔐 كلمة سر المسؤول\n" + actionLabel + " كتحتاج صلاحية المسؤول:");
+  if (pw === null) return false;
+  if (pw === getStockPw()) {
+    adminUnlockedUntil = Date.now() + 10 * 60 * 1000;
+    return true;
+  }
+  alert("❌ كلمة السر غالطة. العملية مرفوضة.");
+  playBeep("error");
+  return false;
+}
+function setStockPw(pw) { localStorage.setItem(PW_KEY, pw); }
+function clearStockPw() { localStorage.removeItem(PW_KEY); }
+
+/* نافذة إدخال بديلة عن prompt() — prompt() ما كيخدمش فداخل تطبيق ويندوز المبني بـ Electron */
+function showPromptModal(message, opts) {
+  opts = opts || {};
+  return new Promise((resolve) => {
+    const overlay = document.getElementById("promptModalOverlay");
+    const msgEl = document.getElementById("promptModalMsg");
+    const inputEl = document.getElementById("promptModalInput");
+    const okBtn = document.getElementById("promptModalOk");
+    const cancelBtn = document.getElementById("promptModalCancel");
+    msgEl.textContent = message;
+    inputEl.type = opts.isText ? "text" : "password";
+    inputEl.value = "";
+    overlay.style.display = "flex";
+    setTimeout(() => inputEl.focus(), 30);
+    function cleanup(result) {
+      overlay.style.display = "none";
+      okBtn.onclick = null; cancelBtn.onclick = null; inputEl.onkeydown = null;
+      resolve(result);
+    }
+    okBtn.onclick = () => cleanup(inputEl.value);
+    cancelBtn.onclick = () => cleanup(null);
+    inputEl.onkeydown = (e) => {
+      if (e.key === "Enter") { e.preventDefault(); cleanup(inputEl.value); }
+      else if (e.key === "Escape") { e.preventDefault(); cleanup(null); }
+    };
+  });
+}
+
+async function changeAdminPassword() {
+  const current = await showPromptModal("🔐 دخل كلمة السر الحالية:");
+  if (current === null) return;
+  if (current !== getStockPw()) {
+    if (current === RECOVERY_CODE) {
+      const np = await showPromptModal("🆘 وضع الاسترجاع\nدخل كلمة السر الجديدة (4 أحرف/أرقام على الأقل):");
+      if (np === null) return;
+      if (!np || np.length < 4) { playBeep("error"); alert("❌ كلمة السر خاصها تكون 4 أحرف/أرقام على الأقل."); return; }
+      setStockPw(np); adminUnlockedUntil = 0; alert("✅ تبدلات كلمة السر بنجاح."); render(); return;
+    }
+    playBeep("error"); alert("❌ كلمة السر الحالية غالطة."); return;
+  }
+  const np = await showPromptModal("🔑 دخل كلمة السر الجديدة:");
+  if (np === null) return;
+  if (!np || np.length < 4) { playBeep("error"); alert("❌ كلمة السر خاصها تكون 4 أحرف/أرقام على الأقل."); return; }
+  const confirmPw = await showPromptModal("🔑 عاود دخل كلمة السر الجديدة:");
+  if (confirmPw === null) return;
+  if (np !== confirmPw) { playBeep("error"); alert("❌ كلمتا السر ما متطابقاش."); return; }
+  setStockPw(np); adminUnlockedUntil = 0; alert("✅ تبدلات كلمة السر بنجاح."); render();
+}
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+let saveTimer = null;
+function persist() {
+  const badge = document.getElementById("saveBadge");
+  badge.textContent = "جاري الحفظ..."; badge.classList.remove("saved"); badge.classList.add("show");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ products: state.products, sales: state.sales, orders: state.orders, repairs: state.repairs, debts: state.debts, expenses: state.expenses, cashOpenings: state.cashOpenings }));
+      badge.textContent = "تم الحفظ"; badge.classList.add("saved");
+    } catch (e) { badge.textContent = "خطأ فالحفظ"; }
+    setTimeout(() => badge.classList.remove("show"), 1200);
+  }, 300);
+}
+
+/* ================= State ================= */
+const saved = loadData();
+const state = {
+  products: (saved && saved.products) || {},
+  sales: (saved && saved.sales) || [],
+  orders: (saved && saved.orders) || [],
+  repairs: (saved && saved.repairs) || [],
+  debts: (saved && saved.debts) || [],
+  expenses: (saved && saved.expenses) || [],
+  cart: [],
+  tab: "pos",
+  lastScanned: null,
+  lastReceiptSaleId: null,
+  stockUnlocked: false,
+  stockPwError: "",
+  stockPwInput: "",
+  pwSettingsForm: { current: "", next: "", confirm: "" },
+  pwSettingsError: "",
+  notice: null,
+  showManual: false,
+  manualForm: { name: "", costPrice: "", price: "", qty: "1" },
+  // products tab
+  pForm: { barcode: "", name: "", costPrice: "", price: "", qty: "", image: "", category: "accessory", supplier: "" },
+  pEditingCode: null,
+  pError: "",
+  pImgLoading: false,
+  // phones tab
+  phForm: { barcode: "", name: "", costPrice: "", price: "", qty: "", image: "", supplier: "" },
+  phEditingCode: null,
+  phError: "",
+  phImgLoading: false,
+  // stock tab
+  sQuery: "",
+  sAdjustCode: null,
+  sAmount: 1,
+  sEditCode: null,
+  sEditForm: { name: "", costPrice: "", price: "", qty: "" },
+  sViewFilter: "all",
+  // sales tab
+  salesOpen: null,
+  confirmReturn: null,
+  confirmDeleteSale: null,
+  salesDateFilter: "",
+  rankPeriod: "all",
+  // orders tab
+  oForm: { productName: "", customerName: "", customerPhone: "", qty: "1", notes: "" },
+  oError: "",
+  oFilter: "pending",
+  // repairs tab
+  rForm: { phoneType: "", issue: "", costPrice: "", repairPrice: "" },
+  rError: "",
+  rFilter: "pending",
+  // debts tab
+  dForm: { customerName: "", customerPhone: "", amount: "", notes: "" },
+  dError: "",
+  dFilter: "open",
+  dPayAmount: {},
+  // expenses tab
+  eForm: { desc: "", amount: "" },
+  eError: "",
+  // cash register
+  cashOpenings: (saved && saved.cashOpenings) || {},
+};
+
+function save() { persist(); }
+
+/* ================= Date du jour ================= */
+const AR_DAYS = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+const AR_MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "ماي", "يونيو", "يوليوز", "غشت", "شتنبر", "أكتوبر", "نونبر", "دجنبر"];
+function renderTodayDate() {
+  const el = document.getElementById("todayDate");
+  if (!el) return;
+  const d = new Date();
+  el.textContent = `${AR_DAYS[d.getDay()]}، ${d.getDate()} ${AR_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+setInterval(renderTodayDate, 60 * 1000);
+
+/* ================= Reset (تصفير كلشي) ================= */
+async function resetAllData() {
+  if (!(await requireAdmin("تصفير كل البيانات"))) return;
+  const first = confirm("⚠️ خطير جداً!\nهاد العملية غادي تمسح نهائياً: المنتجات، الهواتف، المبيعات، الطلبيات، الإصلاحات، الديون، المصاريف والصندوق.\nكولشي غادي يرجع 0.\n\nواجب تكون دايرة نسخة احتياطية قبل. متأكد بغيتي تكمل؟");
+  if (!first) return;
+  const phrase = await showPromptModal("باش نتأكدو، كتب بالضبط الكلمة: تأكيد", { isText: true });
+  if (phrase !== "تأكيد") { playBeep("error"); alert("❌ العملية تلغات."); return; }
+  state.products = {};
+  state.sales = [];
+  state.orders = [];
+  state.repairs = [];
+  state.debts = [];
+  state.expenses = [];
+  state.cashOpenings = {};
+  state.cart = [];
+  save();
+  document.getElementById("backupPanel").classList.add("hidden");
+  alert("✅ تصفرت جميع البيانات. كولشي رجع 0.");
+  render();
+}
+
+function toggleBackupPanel() {
+  document.getElementById("backupPanel").classList.toggle("hidden");
+  document.getElementById("searchPanel").classList.add("hidden");
+}
+function toggleSearchPanel() {
+  document.getElementById("searchPanel").classList.toggle("hidden");
+  document.getElementById("backupPanel").classList.add("hidden");
+  const panel = document.getElementById("searchPanel");
+  if (!panel.classList.contains("hidden")) {
+    setTimeout(() => document.getElementById("globalSearchInput").focus(), 50);
+    renderGlobalSearchResults("");
+  }
+}
+function goToTab(tab) {
+  document.getElementById("searchPanel").classList.add("hidden");
+  setTab(tab);
+}
+function renderGlobalSearchResults(query) {
+  const q = (query || "").trim().toLowerCase();
+  const box = document.getElementById("globalSearchResults");
+  if (!box) return;
+  if (!q) { box.innerHTML = `<p style="color:#C9B8A3; font-size:12px; margin:4px 0 0;">اكتب باش تقلب فكل شي (منتجات، ديون، إصلاحات، طلبيات)...</p>`; return; }
+
+  const sections = [];
+
+  const prodMatches = Object.entries(state.products).filter(([code, p]) => p.name.toLowerCase().includes(q) || code.toLowerCase().includes(q)).slice(0, 5);
+  if (prodMatches.length) sections.push({ title: "منتجات", tab: "stock", items: prodMatches.map(([code, p]) => `${p.name} (${code}) — ${p.qty} فالستوك`) });
+
+  const debtMatches = state.debts.filter(d => d.customerName.toLowerCase().includes(q) || (d.customerPhone || "").includes(q)).slice(0, 5);
+  if (debtMatches.length) sections.push({ title: "ديون", tab: "debts", items: debtMatches.map(d => `${d.customerName} — باقي ${fmt(debtRemaining(d))} د.م`) });
+
+  const repairMatches = state.repairs.filter(r => r.phoneType.toLowerCase().includes(q) || r.issue.toLowerCase().includes(q)).slice(0, 5);
+  if (repairMatches.length) sections.push({ title: "إصلاحات", tab: "repairs", items: repairMatches.map(r => `${r.phoneType} — ${r.issue}`) });
+
+  const orderMatches = state.orders.filter(o => o.customerName.toLowerCase().includes(q) || o.productName.toLowerCase().includes(q)).slice(0, 5);
+  if (orderMatches.length) sections.push({ title: "طلبيات زبناء", tab: "orders", items: orderMatches.map(o => `${o.customerName} — ${o.productName}`) });
+
+  if (sections.length === 0) { box.innerHTML = `<p style="color:#C9B8A3; font-size:12px; margin:4px 0 0;">ماكاين والو طابق "${esc(query)}"</p>`; return; }
+
+  box.innerHTML = sections.map(sec => `
+    <div style="margin-top:8px;">
+      <p style="color:#C9B8A3; font-size:11px; font-weight:700; margin:0 0 4px;">${sec.title}</p>
+      ${sec.items.map(txt => `<div onclick="goToTab('${sec.tab}')" style="background:rgba(255,255,255,.06); border-radius:8px; padding:6px 10px; font-size:12px; color:#FAF6EF; margin-bottom:4px; cursor:pointer;">${esc(txt)}</div>`).join("")}
+    </div>
+  `).join("");
+}
+
+function exportBackup() {
+  const data = { products: state.products, sales: state.sales, orders: state.orders, repairs: state.repairs, debts: state.debts, expenses: state.expenses, cashOpenings: state.cashOpenings, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const d = new Date();
+  const stamp = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  a.href = url;
+  a.download = `نسخة-احتياطية-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function importBackup(inputEl) {
+  const file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data || typeof data !== "object" || !data.products) throw new Error("bad file");
+      const ok = confirm("رجاع النسخة الاحتياطية غادي يبدل كل البيانات الحالية (المنتجات، المبيعات، الطلبيات). متأكد؟");
+      if (!ok) { inputEl.value = ""; return; }
+      state.products = data.products || {};
+      state.sales = data.sales || [];
+      state.orders = data.orders || [];
+      state.repairs = data.repairs || [];
+      state.debts = data.debts || [];
+      state.expenses = data.expenses || [];
+      state.cashOpenings = data.cashOpenings || {};
+      save();
+      render();
+      alert("تم استرجاع النسخة الاحتياطية بنجاح");
+    } catch (e) {
+      alert("هاد الملف ماشي نسخة احتياطية صحيحة");
+    }
+    inputEl.value = "";
+  };
+  reader.readAsText(file);
+}
+
+/* ================= Helpers ================= */
+function fmt(n) { return (Math.round((n || 0) * 100) / 100).toLocaleString("fr-FR"); }
+function nowLabel() {
+  const d = new Date();
+  return d.toLocaleDateString("fr-FR") + " - " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+}
+function esc(s) { const d = document.createElement("div"); d.textContent = s == null ? "" : s; return d.innerHTML; }
+
+let audioCtx = null;
+function playBeep(kind) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const ctx = audioCtx;
+    function tone(freq, start, dur) {
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination); osc.type = "square";
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.15, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+      osc.start(start); osc.stop(start + dur + 0.01);
+    }
+    const t0 = ctx.currentTime;
+    if (kind === "ok") tone(1500, t0, 0.12);
+    else { tone(320, t0, 0.2); tone(320, t0 + 0.25, 0.2); }
+  } catch (e) {}
+}
+
+function openPrintWindow(bodyHtml, title) {
+  const w = window.open("", "_blank", "width=380,height=600");
+  if (!w) { alert("خاصك تسمح للنوافذ المنبثقة (popups) باش تقدر تطبع"); return; }
+  w.document.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>${esc(title)}</title>
+  <style>
+    body{font-family:Tajawal,Arial,sans-serif; width:280px; margin:12px auto; color:#000; font-size:13px;}
+    h2{text-align:center; margin:0 0 2px; font-size:16px;}
+    p.sub{text-align:center; margin:0 0 10px; font-size:11px; color:#555;}
+    table{width:100%; border-collapse:collapse; margin:8px 0;}
+    td{padding:3px 0; font-size:12px;}
+    .line{border-top:1px dashed #000; margin:8px 0;}
+    .total{font-weight:bold; font-size:15px; display:flex; justify-content:space-between; margin-top:6px;}
+    .foot{text-align:center; margin-top:14px; font-size:11px; color:#555;}
+  </style></head><body>${bodyHtml}
+  <script>window.onload=()=>{window.print();}<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+function printSaleReceipt(saleId) {
+  const sale = state.sales.find(s => s.id === saleId);
+  if (!sale) return;
+  const rows = sale.items.map(it => `<tr><td>${esc(it.name)} × ${it.qty}</td><td style="text-align:left;">${fmt(it.price * it.qty)}</td></tr>`).join("");
+  const body = `
+    <h2>إصلاحات حمزة</h2>
+    <p class="sub">${sale.date}${sale.returned ? " — تم الإرجاع" : ""}</p>
+    <div class="line"></div>
+    <table>${rows}</table>
+    <div class="line"></div>
+    <div class="total"><span>المجموع</span><span>${fmt(sale.total)} د.م</span></div>
+    <p class="foot">شكرا على تعاملكم معانا 🙏</p>
+  `;
+  openPrintWindow(body, "تيكيت البيع");
+}
+
+function printRepairReceipt(repairId) {
+  const r = state.repairs.find(x => x.id === repairId);
+  if (!r) return;
+  const body = `
+    <h2>إصلاحات حمزة</h2>
+    <p class="sub">${r.date}</p>
+    <div class="line"></div>
+    <table>
+      <tr><td>نوع الهاتف</td><td style="text-align:left;">${esc(r.phoneType)}</td></tr>
+      <tr><td>المشكل</td><td style="text-align:left;">${esc(r.issue)}</td></tr>
+    </table>
+    <div class="line"></div>
+    <div class="total"><span>تمن الإصلاح</span><span>${fmt(r.repairPrice)} د.م</span></div>
+    <p class="foot">شكرا على تعاملكم معانا 🙏</p>
+  `;
+  openPrintWindow(body, "تيكيت الإصلاح");
+}
+
+function resizeImageFile(file, maxDim, quality, cb) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > height && width > maxDim) { height = Math.round(height * maxDim / width); width = maxDim; }
+      else if (height > maxDim) { width = Math.round(width * maxDim / height); height = maxDim; }
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+      cb(canvas.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = () => cb(null);
+    img.src = reader.result;
+  };
+  reader.onerror = () => cb(null);
+  reader.readAsDataURL(file);
+}
+
+function drawBarcodeStripes() {
+  document.querySelectorAll(".barcode-stripe").forEach(svg => {
+    svg.innerHTML = "";
+    const w = 140, h = 30, n = 46;
+    for (let i = 0; i < n; i++) {
+      const wide = Math.random() > 0.55;
+      const bw = wide ? 3 : 1.5;
+      const bh = 10 + (i % 5) * 4;
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", i * 3);
+      rect.setAttribute("y", h - bh);
+      rect.setAttribute("width", bw);
+      rect.setAttribute("height", bh);
+      rect.setAttribute("fill", "currentColor");
+      svg.appendChild(rect);
+    }
+  });
+}
+
+const ICONS = {
+  scan: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M8 12h8"/></svg>',
+  cart: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+  package: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>',
+  receipt: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2h16v20l-3-2-3 2-3-2-3 2-3-2-3 2z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>',
+  clipboard: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3M9 12h6M9 16h4"/></svg>',
+  image: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>',
+  upload: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+  trend: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+  pencil: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
+  trash: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14Z"/></svg>',
+  phone: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+  wrench: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+  dashboard: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>',
+  debt: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.5 5.5 8.5 10.5M8.5 5.5l7 5"/><path d="M2 21c0-3.3 4.5-6 10-6s10 2.7 10 6"/></svg>',
+  wallet: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>',
+  smartphone: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+};
+
+/* ================= Top-level render ================= */
+const TABS = [
+  ["dashboard", "لوحة التحكم", "dashboard"],
+  ["pos", "نقطة البيع", "cart"],
+  ["stock", "المخزون", "package"],
+  ["products", "الاكسسوارات", "scan"],
+  ["phones", "الهواتف", "smartphone"],
+  ["sales", "المبيعات", "receipt"],
+  ["repairs", "الإصلاحات", "wrench"],
+  ["debts", "الديون والكريدي", "debt"],
+  ["expenses", "المصاريف", "wallet"],
+  ["orders", "طلبيات الزبناء", "clipboard"],
+];
+
+function renderTabs() {
+  const el = document.getElementById("tabButtons");
+  el.innerHTML = TABS.map(([key, label, icon]) =>
+    `<button class="${state.tab === key ? "active" : ""}" onclick="setTab('${key}')">${ICONS[icon]}${label}</button>`
+  ).join("");
+  const badge = document.getElementById("adminState");
+  if (badge) { badge.textContent = isAdminUnlocked() ? "مفتوحة مؤقتاً" : "مقفولة"; badge.style.opacity = isAdminUnlocked() ? "1" : ".65"; }
+}
+function setTab(t) { state.tab = t; render(); }
+
+function renderLowStockBanner() {
+  const count = Object.values(state.products).filter(p => p.qty <= 5).length;
+  const el = document.getElementById("lowStockBanner");
+  el.innerHTML = count > 0
+    ? `<div class="low-stock-banner">⚠️ ${count} منتج${count > 1 ? "ات" : ""} قاربت تنفد من المخزون</div>`
+    : "";
+}
+
+function render() {
+  renderTabs();
+  renderLowStockBanner();
+  const main = document.getElementById("mainContent");
+  if (state.tab === "dashboard") { main.innerHTML = renderDashboard(); drawDashboardChart(); }
+  else if (state.tab === "pos") main.innerHTML = renderPOS();
+  else if (state.tab === "stock") main.innerHTML = renderStock();
+  else if (state.tab === "products") main.innerHTML = renderProducts();
+  else if (state.tab === "phones") main.innerHTML = renderPhones();
+  else if (state.tab === "sales") { main.innerHTML = renderSales(); drawSalesChart(); }
+  else if (state.tab === "repairs") main.innerHTML = renderRepairs();
+  else if (state.tab === "debts") main.innerHTML = renderDebts();
+  else if (state.tab === "expenses") main.innerHTML = renderExpenses();
+  else if (state.tab === "orders") main.innerHTML = renderOrders();
+  drawBarcodeStripes();
+  afterRenderHooks();
+}
+
+function afterRenderHooks() {
+  if (state.tab === "pos") {
+    const input = document.getElementById("barcodeInput");
+    if (input) { input.focus(); input.value = ""; }
+  }
+}
+
+/* ================= POS ================= */
+function renderPOS() {
+  const total = state.cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const cartMargin = state.cart.reduce((s, i) => s + (i.price - (i.costPrice || 0)) * i.qty, 0);
+  return `
+    <div class="space-y">
+      <div class="card">
+        <label class="field-label">سكانا الكود بار هنا</label>
+        <div class="scan-input-wrap">
+          ${ICONS.scan}
+          <input type="text" id="barcodeInput" placeholder="فوكاصي هنا وسكانا..."
+            onkeydown="if(event.key==='Enter'){posScan(this.value); this.value='';}">
+        </div>
+        ${state.notice ? `<div class="notice" style="background:${state.notice.type === 'ok' ? 'rgba(76,122,82,.1)' : state.notice.type === 'warn' ? 'rgba(240,119,13,.12)' : 'rgba(176,69,59,.1)'}; color:${state.notice.type === 'ok' ? 'var(--success)' : state.notice.type === 'warn' ? 'var(--accent)' : 'var(--danger)'}; font-weight:${state.notice.type === 'warn' ? '700' : '400'};">${esc(state.notice.text)}</div>` : ""}
+        ${renderLastScanned()}
+        <button class="btn" style="background:none; color:var(--accent); padding:0; margin-top:12px; display:flex; align-items:center; gap:6px; font-size:12px;" onclick="toggleManual()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          منتج بلا كود بار
+        </button>
+        ${state.showManual ? renderManualForm() : ""}
+      </div>
+
+      <div class="list">
+        ${state.cart.length === 0 ? `<div class="empty">${ICONS.cart}<br/>السلة فارغة — سكانا منتج باش تبدا</div>` : state.cart.map(item => renderCartRow(item)).join("")}
+      </div>
+
+      ${state.cart.length === 0 && state.lastReceiptSaleId ? `
+      <div class="card row" style="justify-content:space-between;">
+        <span class="muted" style="font-size:13px;">✓ تم البيع الأخير بنجاح</span>
+        <button class="btn btn-outline" style="padding:7px 14px; font-size:12px;" onclick="printSaleReceipt(${state.lastReceiptSaleId})">🧾 طباعة تيكيت</button>
+      </div>` : ""}
+
+      ${state.cart.length > 0 ? `
+      <div class="checkout-bar">
+        <div>
+          <p class="muted" style="font-size:12px; margin:0;">المجموع</p>
+          <p style="font-size:26px; font-weight:900; color:var(--accent); margin:0;">${fmt(total)} د.م</p>
+          <p class="muted" style="font-size:11px; margin:2px 0 0;">الربح: <b style="color:${cartMargin >= 0 ? 'var(--success)' : 'var(--danger)'};">${fmt(cartMargin)} د.م</b></p>
+        </div>
+        <div class="row">
+          <button class="btn btn-outline" onclick="clearCart()">فرغ</button>
+          <button class="btn btn-accent" onclick="checkout()">✓ أتمم البيع</button>
+        </div>
+      </div>` : ""}
+    </div>
+  `;
+}
+
+function renderLastScanned() {
+  const ls = state.lastScanned;
+  if (!ls) return "";
+  if (!ls.found) {
+    return `<div class="row" style="margin-top:12px; background:var(--bg); border-radius:12px; padding:12px;">
+      <div class="thumb" style="width:96px;height:96px;">${ICONS.image}</div>
+      <p style="color:var(--danger); font-weight:700; font-size:14px; margin:0;">الكود "${esc(ls.code)}" غير موجود</p>
+    </div>`;
+  }
+  const margin = (ls.price || 0) - (ls.costPrice || 0);
+  const hasCost = (ls.costPrice || 0) > 0;
+  let badgeClass = "badge-gray", badgeText = "تمن الجملة ماعمرش";
+  if (hasCost) {
+    if (margin > 0) { badgeClass = "badge-green"; badgeText = `فيه ربح: ${fmt(margin)} د.م`; }
+    else if (margin === 0) { badgeClass = "badge-gray"; badgeText = "بلا ربح (تمن التكلفة)"; }
+    else { badgeClass = "badge-red"; badgeText = `خسارة: ${fmt(Math.abs(margin))} د.م`; }
+  }
+  return `<div class="row" style="margin-top:12px; background:var(--bg); border-radius:12px; padding:12px;">
+    <div class="thumb" style="width:96px;height:96px;">${ls.image ? `<img src="${ls.image}"/>` : ICONS.image}</div>
+    <div style="min-width:0;">
+      <p style="font-weight:700; margin:0;">${esc(ls.name)}</p>
+      <p class="muted" style="font-size:12px; margin:2px 0 0;">${fmt(ls.price)} د.م — باقي ${ls.qty} فالستوك</p>
+      <span class="badge ${badgeClass}" style="display:inline-block; margin-top:4px;">${badgeText}</span>
+    </div>
+  </div>`;
+}
+
+function renderManualForm() {
+  const f = state.manualForm;
+  return `
+  <div style="margin-top:12px; background:var(--bg); border-radius:12px; padding:12px;" class="space-y">
+    <div>
+      <label class="field-label">اسم المنتج</label>
+      <input type="text" value="${esc(f.name)}" placeholder="مثلا: خدمة تصليح" oninput="state.manualForm.name=this.value">
+    </div>
+    <div class="grid3">
+      <div><label class="field-label">تمن الجملة</label><input type="number" step="0.01" value="${esc(f.costPrice)}" oninput="state.manualForm.costPrice=this.value"></div>
+      <div><label class="field-label">تمن البيع</label><input type="number" step="0.01" value="${esc(f.price)}" oninput="state.manualForm.price=this.value"></div>
+      <div><label class="field-label">الكمية</label><input type="number" min="1" value="${esc(f.qty)}" oninput="state.manualForm.qty=this.value"></div>
+    </div>
+    ${state.manualError ? `<p style="color:var(--danger); font-size:12px; margin:0;">${esc(state.manualError)}</p>` : ""}
+    <div class="row">
+      <button class="btn btn-accent" onclick="addManualItem()">زيد للسلة</button>
+      <button class="btn btn-outline" onclick="cancelManual()">إلغاء</button>
+    </div>
+  </div>`;
+}
+
+function renderCartRow(item) {
+  const catalogPrice = state.products[item.barcode] ? state.products[item.barcode].price : item.price;
+  const changed = item.price !== catalogPrice;
+  const margin = (item.price - (item.costPrice || 0)) * item.qty;
+  return `<div class="item row">
+    <div style="flex:1; min-width:0;">
+      <p style="font-weight:700; margin:0;">${esc(item.name)} ${item.manual ? `<span class="badge badge-gray" style="margin-right:6px;">بلا كود</span>` : ""}</p>
+      <div class="row" style="gap:4px; margin-top:2px;">
+        <input class="price-input-small" type="number" step="0.01" value="${item.price}"
+          style="border:1px solid ${changed ? "var(--accent)" : "var(--border)"}; color:${changed ? "var(--accent)" : "var(--muted)"}; font-weight:${changed ? "700" : "400"};"
+          onchange="setCartPrice('${item.barcode}', this.value)">
+        <span class="muted" style="font-size:11px;">د.م × ${item.qty}</span>
+        <span class="badge ${margin >= 0 ? 'badge-green' : 'badge-red'}" style="font-size:10px;">ربح ${fmt(margin)}</span>
+      </div>
+    </div>
+    <div class="qty-adjust">
+      <button onclick="changeCartQty('${item.barcode}', -1)">−</button>
+      <span style="width:20px; text-align:center; font-weight:700;">${item.qty}</span>
+      <button onclick="changeCartQty('${item.barcode}', 1)">+</button>
+    </div>
+    <p style="width:70px; text-align:left; font-weight:700; margin:0;">${fmt(item.price * item.qty)}</p>
+    <button style="background:rgba(176,69,59,.08); border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="removeCartItem('${item.barcode}')">${ICONS.trash} مسح</button>
+  </div>`;
+}
+
+function posScan(code) {
+  const c = (code || "").trim();
+  if (!c) return;
+  const p = state.products[c];
+  if (!p) {
+    playBeep("error");
+    state.lastScanned = { found: false, code: c };
+    state.notice = { type: "error", text: `الكود "${c}" غير موجود فالمنتجات` };
+    render();
+    setTimeout(() => { state.notice = null; if (state.tab === "pos") render(); }, 1800);
+    return;
+  }
+  const inCart = state.cart.find(i => i.barcode === c);
+  const currentQty = inCart ? inCart.qty : 0;
+  if (currentQty + 1 > p.qty) {
+    playBeep("error");
+    state.lastScanned = { found: true, name: p.name, image: p.image, price: p.price, costPrice: p.costPrice || 0, qty: p.qty };
+    state.notice = { type: "error", text: `الستوك ديال "${p.name}" ماكفاش (باقي ${p.qty})` };
+    render();
+    setTimeout(() => { state.notice = null; if (state.tab === "pos") render(); }, 1800);
+    return;
+  }
+  if (inCart) inCart.qty += 1;
+  else state.cart.push({ barcode: c, name: p.name, price: p.price, costPrice: p.costPrice || 0, qty: 1, category: p.category || "accessory" });
+  state.lastScanned = { found: true, name: p.name, image: p.image, price: p.price, costPrice: p.costPrice || 0, qty: p.qty };
+  if (p.price === 0) {
+    playBeep("error");
+    state.notice = { type: "warn", text: `⚠️ "${p.name}" تمن البيع ديالو 0 د.م — بدلو فالسلة قبل البيع` };
+  } else {
+    playBeep("ok");
+    state.notice = { type: "ok", text: `تزاد: ${p.name}` };
+  }
+  render();
+  setTimeout(() => { state.notice = null; if (state.tab === "pos") render(); }, 2200);
+}
+
+function changeCartQty(barcode, delta) {
+  const item = state.cart.find(i => i.barcode === barcode);
+  if (!item) return;
+  const stock = state.products[barcode] ? state.products[barcode].qty : 999999;
+  item.qty = Math.min(stock, Math.max(1, item.qty + delta));
+  render();
+}
+function removeCartItem(barcode) { state.cart = state.cart.filter(i => i.barcode !== barcode); render(); }
+function setCartPrice(barcode, val) {
+  const item = state.cart.find(i => i.barcode === barcode);
+  if (!item) return;
+  const num = parseFloat(val);
+  item.price = isNaN(num) ? 0 : num;
+  render();
+}
+function clearCart() { state.cart = []; render(); }
+
+function toggleManual() { state.showManual = !state.showManual; render(); }
+function cancelManual() { state.showManual = false; state.manualForm = { name: "", costPrice: "", price: "", qty: "1" }; state.manualError = ""; render(); }
+function addManualItem() {
+  const f = state.manualForm;
+  if (!f.name.trim() || f.price === "") { playBeep("error"); state.manualError = "خاصك تعمر اسم المنتج وتمن البيع"; render(); return; }
+  const qty = Math.max(1, parseInt(f.qty) || 1);
+  state.cart.push({
+    barcode: `manual-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    name: f.name.trim(), price: parseFloat(f.price) || 0, costPrice: parseFloat(f.costPrice) || 0, qty, manual: true, category: "accessory",
+  });
+  state.notice = { type: "ok", text: `تزاد: ${f.name.trim()}` };
+  state.manualForm = { name: "", costPrice: "", price: "", qty: "1" };
+  state.manualError = ""; state.showManual = false;
+  render();
+  setTimeout(() => { state.notice = null; if (state.tab === "pos") render(); }, 1800);
+}
+
+function checkout() {
+  if (state.cart.length === 0) return;
+  const total = state.cart.reduce((s, i) => s + i.price * i.qty, 0);
+  state.cart.forEach(item => {
+    if (state.products[item.barcode]) {
+      state.products[item.barcode].qty = Math.max(0, state.products[item.barcode].qty - item.qty);
+    }
+  });
+  const sale = { id: Date.now(), date: nowLabel(), items: state.cart, total };
+  state.sales.unshift(sale);
+  state.cart = [];
+  state.lastReceiptSaleId = sale.id;
+  state.notice = { type: "ok", text: "تم البيع بنجاح" };
+  save();
+  render();
+  setTimeout(() => { state.notice = null; if (state.tab === "pos") render(); }, 1800);
+}
+
+/* ================= Stock ================= */
+function renderLockScreen() {
+  return `
+  <div class="card" style="text-align:center; padding:32px 20px;">
+    <div style="font-size:32px; margin-bottom:8px;">🔒</div>
+    <p style="font-weight:700; font-size:15px; margin:0 0 4px;">المخزون محمي بكلمة السر</p>
+    <p class="muted" style="font-size:12px; margin:0 0 16px;">دخل كلمة السر باش تشوف وتبدل المخزون</p>
+    <input type="password" id="stockPwInput" placeholder="كلمة السر" style="max-width:220px; margin:0 auto 10px; display:block; text-align:center;"
+      onkeydown="if(event.key==='Enter'){unlockStock(this.value);}">
+    <button class="btn btn-accent" onclick="unlockStock(document.getElementById('stockPwInput').value)">فتح</button>
+    ${state.stockPwError ? `<p style="color:var(--danger); font-size:12px; margin-top:10px;">${esc(state.stockPwError)}</p>` : ""}
+  </div>`;
+}
+function unlockStock(pw) {
+  if (pw === getStockPw()) { state.stockUnlocked = true; state.stockPwError = ""; render(); }
+  else { playBeep("error"); state.stockPwError = "كلمة السر غالطة"; render(); }
+}
+function lockStock() { state.stockUnlocked = false; render(); }
+
+function renderStock() {
+  if (getStockPw() && !state.stockUnlocked) return renderLockScreen();
+
+  const q = state.sQuery.toLowerCase();
+  const all = Object.entries(state.products).filter(([code, p]) => p.name.toLowerCase().includes(q) || code.includes(state.sQuery));
+  const outCount = Object.values(state.products).filter(p => p.qty === 0).length;
+  const entries = state.sViewFilter === "out" ? all.filter(([, p]) => p.qty === 0) : all;
+
+  return `
+  <div class="space-y">
+    ${getStockPw() ? `<div class="row" style="justify-content:flex-end;"><button class="btn btn-outline" style="padding:5px 12px; font-size:11px;" onclick="lockStock()">🔒 قفل المخزون</button></div>` : ""}
+    <div class="scan-input-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" value="${esc(state.sQuery)}" placeholder="قلب على منتج أو كود بار..." style="padding-right:34px;" oninput="state.sQuery=this.value; render();">
+    </div>
+    <div class="row">
+      <button class="filter-btn ${state.sViewFilter === 'all' ? 'active' : ''}" onclick="state.sViewFilter='all'; render();">الكل</button>
+      <button class="filter-btn ${state.sViewFilter === 'out' ? 'active-danger' : ''}" onclick="state.sViewFilter='out'; render();">نفدات ${outCount > 0 ? `(${outCount})` : ""}</button>
+    </div>
+    ${state.sViewFilter === "out" && outCount > 0 ? `<p class="muted" style="font-size:12px;">هادو المنتجات لي سلاو — تصاورهم باش تجيدهم، وملي تجيبهم غير زيد الكمية.</p>` : ""}
+    ${entries.length === 0
+      ? `<p class="empty">${state.sViewFilter === "out" ? "ماكاينش منتجات نفدات دابا 🎉" : 'ماكاينش منتجات. زيد منتجات من تبويب "المنتجات".'}</p>`
+      : `<div class="list">${entries.map(([code, p]) => renderStockRow(code, p)).join("")}</div>`}
+  </div>`;
+}
+
+function renderStockRow(code, p) {
+  const big = state.sViewFilter === "out";
+  const thumbSize = big ? 56 : 40;
+  const margin = (p.price || 0) - (p.costPrice || 0);
+  return `
+  <div class="item">
+    <div class="row">
+      <div class="thumb" style="width:${thumbSize}px; height:${thumbSize}px;">${p.image ? `<img src="${p.image}"/>` : ICONS.image}</div>
+      <div style="flex:1; min-width:0;">
+        <p style="font-weight:700; margin:0;">${esc(p.name)} ${p.category === "phone" ? `<span class="badge badge-gray" style="margin-right:4px;">هاتف</span>` : ""}</p>
+        <p class="muted" style="font-size:12px; font-family:monospace; margin:0;">${esc(code)}</p>
+        <span class="badge ${margin >= 0 ? 'badge-green' : 'badge-red'}" style="margin-top:4px; display:inline-block;">ربح ${fmt(margin)} د.م</span>
+      </div>
+      <span class="badge ${p.qty <= 5 ? 'badge-red' : 'badge-green'}" style="font-size:13px;">${p.qty} فالستوك</span>
+      <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="toggleStockAdjust('${code}')">ستوك</button>
+      <button style="background:rgba(240,119,13,.08); border:1px solid var(--accent); color:var(--accent); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="toggleStockEdit('${code}')">${ICONS.pencil} تعديل</button>
+    </div>
+    ${state.sAdjustCode === code ? renderStockAdjust(code) : ""}
+    ${state.sEditCode === code ? renderStockEdit(code, p) : ""}
+  </div>`;
+}
+
+function renderStockAdjust(code) {
+  return `<div class="row" style="margin-top:12px; background:var(--bg); border-radius:12px; padding:10px;">
+    <button style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:#fff;" onclick="state.sAmount=Math.max(1,state.sAmount-1); render();">−</button>
+    <input type="number" value="${state.sAmount}" style="width:64px; text-align:center;" onchange="state.sAmount=Math.max(1,parseInt(this.value)||1); render();">
+    <button style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:#fff;" onclick="state.sAmount+=1; render();">+</button>
+    <button class="btn btn-success" style="margin-right:auto; padding:6px 12px; font-size:12px;" onclick="applyStockAdjust('${code}', ${1})">دخول ستوك (+${state.sAmount})</button>
+    <button class="btn btn-danger" style="padding:6px 12px; font-size:12px;" onclick="applyStockAdjust('${code}', ${-1})">خروج ستوك (-${state.sAmount})</button>
+  </div>`;
+}
+function toggleStockAdjust(code) { state.sAdjustCode = state.sAdjustCode === code ? null : code; state.sEditCode = null; render(); }
+function applyStockAdjust(code, sign) {
+  const delta = sign * state.sAmount;
+  state.products[code].qty = Math.max(0, state.products[code].qty + delta);
+  state.sAdjustCode = null; state.sAmount = 1;
+  save(); render();
+}
+
+function renderStockEdit(code, p) {
+  const f = state.sEditForm;
+  const liveMargin = (parseFloat(f.price) || 0) - (parseFloat(f.costPrice) || 0);
+  return `<div style="margin-top:12px; background:var(--bg); border-radius:12px; padding:10px;" class="space-y">
+    <p class="muted" style="font-size:12px; font-weight:700; margin:0;">تعديل المنتج</p>
+    <div class="grid3">
+      <div style="grid-column:span 3;"><label class="field-label">الاسم</label><input type="text" value="${esc(f.name)}" oninput="state.sEditForm.name=this.value"></div>
+      <div><label class="field-label">ثمن الجملة (التكلفة)</label><input type="number" step="0.01" value="${esc(f.costPrice)}" oninput="state.sEditForm.costPrice=this.value; render();"></div>
+      <div><label class="field-label">ثمن البيع</label><input type="number" step="0.01" value="${esc(f.price)}" oninput="state.sEditForm.price=this.value; render();"></div>
+      <div><label class="field-label">الكمية</label><input type="number" value="${esc(f.qty)}" oninput="state.sEditForm.qty=this.value"></div>
+    </div>
+    <span class="badge ${liveMargin >= 0 ? 'badge-green' : 'badge-red'}">الربح: ${fmt(liveMargin)} د.م</span>
+    <div class="row">
+      <button class="btn btn-accent" style="padding:7px 16px; font-size:12px;" onclick="saveStockEdit('${code}')">حفظ</button>
+      <button class="btn btn-outline" style="padding:7px 16px; font-size:12px;" onclick="state.sEditCode=null; render();">إلغاء</button>
+    </div>
+  </div>`;
+}
+function toggleStockEdit(code) {
+  if (state.sEditCode === code) { state.sEditCode = null; render(); return; }
+  const p = state.products[code];
+  state.sEditForm = { name: p.name, costPrice: String(p.costPrice ?? ""), price: String(p.price), qty: String(p.qty) };
+  state.sEditCode = code; state.sAdjustCode = null;
+  render();
+}
+function saveStockEdit(code) {
+  const f = state.sEditForm;
+  if (!f.name.trim()) return;
+  state.products[code].name = f.name.trim();
+  state.products[code].costPrice = parseFloat(f.costPrice) || 0;
+  state.products[code].price = parseFloat(f.price) || 0;
+  state.products[code].qty = Math.max(0, parseInt(f.qty) || 0);
+  state.sEditCode = null;
+  save(); render();
+}
+
+/* ================= Products ================= */
+function renderProducts() {
+  const f = state.pForm;
+  const entries = Object.entries(state.products).filter(([, p]) => p.category !== "phone");
+  return `
+  <div class="space-y">
+    <div class="card space-y">
+      <p style="font-weight:700; font-size:14px; margin:0;">${state.pEditingCode ? "تعديل اكسسوار" : "زيد اكسسوار جديد"}</p>
+      <div class="grid2">
+        <div style="grid-column:span 2;">
+          <label class="field-label">الكود بار (سكانا أو كتب)</label>
+          <input type="text" id="pBarcodeInput" value="${esc(f.barcode)}" placeholder="0000000000000" style="font-family:monospace;" ${state.pEditingCode ? "disabled" : ""} oninput="state.pForm.barcode=this.value">
+        </div>
+        <div style="grid-column:span 2;">
+          <label class="field-label">صورة المنتج (اختياري)</label>
+          <div class="row">
+            <div class="thumb" style="width:64px;height:64px;">${f.image ? `<img src="${f.image}"/>` : ICONS.image}</div>
+            <label class="upload-btn">${ICONS.upload} ${state.pImgLoading ? "جاري التحميل..." : (f.image ? "بدل الصورة" : "زيد صورة")}
+              <input type="file" accept="image/*" class="hidden" onchange="handleProductImage(this)">
+            </label>
+            ${f.image ? `<button class="btn" style="background:none; color:var(--danger); font-size:12px; padding:4px;" onclick="state.pForm.image=''; render();">حيد</button>` : ""}
+          </div>
+        </div>
+        <div style="grid-column:span 2;">
+          <label class="field-label">اسم المنتج</label>
+          <input type="text" value="${esc(f.name)}" placeholder="مثلا: منكيات نحاس" oninput="state.pForm.name=this.value">
+        </div>
+        <div><label class="field-label">تمن الجملة (د.م)</label><input type="number" step="0.01" value="${esc(f.costPrice)}" oninput="state.pForm.costPrice=this.value"></div>
+        <div><label class="field-label">تمن البيع (د.م)</label><input type="number" step="0.01" value="${esc(f.price)}" oninput="state.pForm.price=this.value"></div>
+        <div style="grid-column:span 2;"><label class="field-label">الكمية</label><input type="number" value="${esc(f.qty)}" oninput="state.pForm.qty=this.value"></div>
+        <div style="grid-column:span 2;"><label class="field-label">المورد (اختياري)</label><input type="text" value="${esc(f.supplier)}" placeholder="اسم المورد" oninput="state.pForm.supplier=this.value"></div>
+      </div>
+      ${state.pError ? `<p style="color:var(--danger); font-size:12px; margin:0;">${esc(state.pError)}</p>` : ""}
+      <div class="row">
+        <button class="btn btn-accent" onclick="submitProduct()">${state.pEditingCode ? "حفظ التعديل" : "زيد الاكسسوار"}</button>
+        ${state.pEditingCode ? `<button class="btn btn-outline" onclick="resetProductForm()">إلغاء</button>` : ""}
+      </div>
+    </div>
+    ${entries.length === 0
+      ? `<p class="empty">ماكاينش اكسسوارات بعد.</p>`
+      : `<div class="list">${entries.map(([code, p]) => renderProductRow(code, p)).join("")}</div>`}
+  </div>`;
+}
+
+function renderProductRow(code, p) {
+  const margin = (p.price || 0) - (p.costPrice || 0);
+  return `<div class="item row">
+    <div class="thumb" style="width:40px;height:40px;">${p.image ? `<img src="${p.image}"/>` : ICONS.image}</div>
+    <div style="flex:1; min-width:0;">
+      <p style="font-weight:700; margin:0;">${esc(p.name)}</p>
+      <p class="muted" style="font-size:12px; font-family:monospace; margin:0;">${esc(code)}${p.supplier ? ` — المورد: ${esc(p.supplier)}` : ""}</p>
+    </div>
+    <div style="text-align:left;">
+      <p style="font-size:13px; font-weight:700; margin:0;">${fmt(p.price)} د.م</p>
+      <p class="muted" style="font-size:10px; margin:0;">جملة: ${fmt(p.costPrice || 0)} د.م</p>
+    </div>
+    <span class="badge ${margin >= 0 ? 'badge-green' : 'badge-red'}">ربح ${fmt(margin)}</span>
+    <span class="muted" style="font-size:12px;">${p.qty} ستوك</span>
+    <button style="background:rgba(240,119,13,.08); border:1px solid var(--accent); color:var(--accent); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="editProduct('${code}')">${ICONS.pencil} تعديل</button>
+    <button style="background:rgba(176,69,59,.08); border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="deleteProduct('${code}')">${ICONS.trash} حذف</button>
+  </div>`;
+}
+
+function handleProductImage(inputEl) {
+  const file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  state.pImgLoading = true; render();
+  resizeImageFile(file, 300, 0.7, (dataUrl) => {
+    state.pImgLoading = false;
+    if (dataUrl) state.pForm.image = dataUrl;
+    else { playBeep("error"); state.pError = "ماقدرش يقرا الصورة، جرب صورة أخرى"; }
+    render();
+  });
+}
+
+function resetProductForm() {
+  state.pForm = { barcode: "", name: "", costPrice: "", price: "", qty: "", image: "", category: "accessory", supplier: "" };
+  state.pEditingCode = null; state.pError = "";
+  render();
+}
+async function submitProduct() {
+  if (state.pEditingCode && !(await requireAdmin("تعديل منتج"))) return;
+  const f = state.pForm;
+  const code = f.barcode.trim();
+  if (!code || !f.name.trim() || f.price === "") { playBeep("error"); state.pError = "خاصك تعمر الكود، الاسم، والثمن"; render(); return; }
+  if (!state.pEditingCode && state.products[code]) { playBeep("error"); state.pError = "هاد الكود بار كاين ديجا لمنتج آخر"; render(); return; }
+  if (state.pEditingCode && state.pEditingCode !== code) delete state.products[state.pEditingCode];
+  state.products[code] = {
+    name: f.name.trim(),
+    costPrice: parseFloat(f.costPrice) || 0,
+    price: parseFloat(f.price) || 0,
+    qty: parseInt(f.qty) || 0,
+    image: f.image || "",
+    category: "accessory",
+    supplier: f.supplier.trim(),
+  };
+  save();
+  resetProductForm();
+}
+async function editProduct(code) {
+  if (!(await requireAdmin("تعديل منتج في المخزون"))) return;
+  const p = state.products[code];
+  state.pEditingCode = code;
+  state.pForm = { barcode: code, name: p.name, costPrice: String(p.costPrice ?? ""), price: String(p.price), qty: String(p.qty), image: p.image || "", category: "accessory", supplier: p.supplier || "" };
+  state.pError = "";
+  render();
+}
+async function deleteProduct(code) {
+  if (!(await requireAdmin("حذف منتج من المخزون"))) return;
+  delete state.products[code];
+  if (state.pEditingCode === code) resetProductForm();
+  save(); render();
+}
+
+/* ================= Phones (separate stock + separate profit) ================= */
+function renderPhones() {
+  const f = state.phForm;
+  const entries = Object.entries(state.products).filter(([, p]) => p.category === "phone");
+  return `
+  <div class="space-y">
+    <div class="card space-y">
+      <p style="font-weight:700; font-size:14px; margin:0;">${state.phEditingCode ? "تعديل هاتف" : "زيد هاتف جديد للستوك"}</p>
+      <div class="grid2">
+        <div style="grid-column:span 2;">
+          <label class="field-label">الكود بار (سكانا أو كتب)</label>
+          <input type="text" id="phBarcodeInput" value="${esc(f.barcode)}" placeholder="0000000000000" style="font-family:monospace;" ${state.phEditingCode ? "disabled" : ""} oninput="state.phForm.barcode=this.value">
+        </div>
+        <div style="grid-column:span 2;">
+          <label class="field-label">صورة الهاتف (اختياري)</label>
+          <div class="row">
+            <div class="thumb" style="width:64px;height:64px;">${f.image ? `<img src="${f.image}"/>` : ICONS.image}</div>
+            <label class="upload-btn">${ICONS.upload} ${state.phImgLoading ? "جاري التحميل..." : (f.image ? "بدل الصورة" : "زيد صورة")}
+              <input type="file" accept="image/*" class="hidden" onchange="handlePhoneImage(this)">
+            </label>
+            ${f.image ? `<button class="btn" style="background:none; color:var(--danger); font-size:12px; padding:4px;" onclick="state.phForm.image=''; render();">حيد</button>` : ""}
+          </div>
+        </div>
+        <div style="grid-column:span 2;">
+          <label class="field-label">اسم/موديل الهاتف</label>
+          <input type="text" value="${esc(f.name)}" placeholder="مثلا: iPhone 12 64GB أسود" oninput="state.phForm.name=this.value">
+        </div>
+        <div><label class="field-label">تمن الشراء بالجملة (د.م)</label><input type="number" step="0.01" value="${esc(f.costPrice)}" oninput="state.phForm.costPrice=this.value"></div>
+        <div><label class="field-label">تمن البيع (د.م)</label><input type="number" step="0.01" value="${esc(f.price)}" oninput="state.phForm.price=this.value"></div>
+        <div style="grid-column:span 2;"><label class="field-label">الكمية</label><input type="number" value="${esc(f.qty)}" oninput="state.phForm.qty=this.value"></div>
+        <div style="grid-column:span 2;"><label class="field-label">المورد / الزبون البائع (اختياري)</label><input type="text" value="${esc(f.supplier)}" placeholder="اسم المورد، أو الزبون إلا شريتيه مستعمل" oninput="state.phForm.supplier=this.value"></div>
+      </div>
+      ${state.phError ? `<p style="color:var(--danger); font-size:12px; margin:0;">${esc(state.phError)}</p>` : ""}
+      <div class="row">
+        <button class="btn btn-accent" onclick="submitPhone()">${state.phEditingCode ? "حفظ التعديل" : "زيد الهاتف"}</button>
+        ${state.phEditingCode ? `<button class="btn btn-outline" onclick="resetPhoneForm()">إلغاء</button>` : ""}
+      </div>
+    </div>
+    ${entries.length === 0
+      ? `<p class="empty">ماكاينش هواتف فالستوك بعد.</p>`
+      : `<div class="list">${entries.map(([code, p]) => renderPhoneRow(code, p)).join("")}</div>`}
+  </div>`;
+}
+
+function renderPhoneRow(code, p) {
+  const margin = (p.price || 0) - (p.costPrice || 0);
+  return `<div class="item row">
+    <div class="thumb" style="width:40px;height:40px;">${p.image ? `<img src="${p.image}"/>` : ICONS.image}</div>
+    <div style="flex:1; min-width:0;">
+      <p style="font-weight:700; margin:0;">${esc(p.name)}</p>
+      <p class="muted" style="font-size:12px; font-family:monospace; margin:0;">${esc(code)}${p.supplier ? ` — من: ${esc(p.supplier)}` : ""}</p>
+    </div>
+    <div style="text-align:left;">
+      <p style="font-size:13px; font-weight:700; margin:0;">${fmt(p.price)} د.م</p>
+      <p class="muted" style="font-size:10px; margin:0;">جملة: ${fmt(p.costPrice || 0)} د.م</p>
+    </div>
+    <span class="badge ${margin >= 0 ? 'badge-green' : 'badge-red'}">ربح ${fmt(margin)}</span>
+    <span class="muted" style="font-size:12px;">${p.qty} ستوك</span>
+    <button style="background:rgba(240,119,13,.08); border:1px solid var(--accent); color:var(--accent); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="editPhone('${code}')">${ICONS.pencil} تعديل</button>
+    <button style="background:rgba(176,69,59,.08); border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="deletePhone('${code}')">${ICONS.trash} حذف</button>
+  </div>`;
+}
+
+function handlePhoneImage(inputEl) {
+  const file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  state.phImgLoading = true; render();
+  resizeImageFile(file, 300, 0.7, (dataUrl) => {
+    state.phImgLoading = false;
+    if (dataUrl) state.phForm.image = dataUrl;
+    else { playBeep("error"); state.phError = "ماقدرش يقرا الصورة، جرب صورة أخرى"; }
+    render();
+  });
+}
+
+function resetPhoneForm() {
+  state.phForm = { barcode: "", name: "", costPrice: "", price: "", qty: "", image: "", supplier: "" };
+  state.phEditingCode = null; state.phError = "";
+  render();
+}
+async function submitPhone() {
+  if (state.phEditingCode && !(await requireAdmin("تعديل هاتف"))) return;
+  const f = state.phForm;
+  const code = f.barcode.trim();
+  if (!code || !f.name.trim() || f.price === "") { playBeep("error"); state.phError = "خاصك تعمر الكود، الاسم، والثمن"; render(); return; }
+  if (!state.phEditingCode && state.products[code]) { playBeep("error"); state.phError = "هاد الكود بار كاين ديجا لمنتج آخر"; render(); return; }
+  if (state.phEditingCode && state.phEditingCode !== code) delete state.products[state.phEditingCode];
+  state.products[code] = {
+    name: f.name.trim(),
+    costPrice: parseFloat(f.costPrice) || 0,
+    price: parseFloat(f.price) || 0,
+    qty: parseInt(f.qty) || 0,
+    image: f.image || "",
+    category: "phone",
+    supplier: f.supplier.trim(),
+  };
+  save();
+  resetPhoneForm();
+}
+async function editPhone(code) {
+  if (!(await requireAdmin("تعديل هاتف في المخزون"))) return;
+  const p = state.products[code];
+  state.phEditingCode = code;
+  state.phForm = { barcode: code, name: p.name, costPrice: String(p.costPrice ?? ""), price: String(p.price), qty: String(p.qty), image: p.image || "", supplier: p.supplier || "" };
+  state.phError = "";
+  render();
+}
+async function deletePhone(code) {
+  if (!(await requireAdmin("حذف هاتف من المخزون"))) return;
+  delete state.products[code];
+  if (state.phEditingCode === code) resetPhoneForm();
+  save(); render();
+}
+
+/* ================= Sales ================= */
+function parseDate(dateStr) {
+  const [datePart] = dateStr.split(" - ");
+  const [day, month, year] = datePart.split("/").map(n => parseInt(n, 10));
+  return { day, month, year };
+}
+function saleProfit(s) { return s.items.reduce((sum, it) => sum + it.qty * (it.price - (it.costPrice || 0)), 0); }
+
+function drawSalesChart() {
+  const canvas = document.getElementById("salesChart");
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = canvas.clientWidth || 600, cssH = 140;
+  canvas.width = cssW * dpr; canvas.height = cssH * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, cssH);
+
+  const days = [];
+  const today = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    days.push({ day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear(), label: `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}` });
+  }
+  const revenueByDay = days.map(d => {
+    let sum = 0;
+    state.sales.forEach(s => {
+      if (s.returned) return;
+      const sd = parseDate(s.date);
+      if (sd.day === d.day && sd.month === d.month && sd.year === d.year) sum += s.total;
+    });
+    return sum;
+  });
+  const maxRev = Math.max(1, ...revenueByDay);
+  const padLeft = 4, padBottom = 20, padTop = 8;
+  const chartW = cssW - padLeft * 2, chartH = cssH - padBottom - padTop;
+  const barGap = 4;
+  const barW = (chartW / days.length) - barGap;
+
+  ctx.font = "10px Tajawal, sans-serif";
+  days.forEach((d, i) => {
+    const x = padLeft + i * (barW + barGap);
+    const h = Math.max(2, (revenueByDay[i] / maxRev) * chartH);
+    const y = padTop + chartH - h;
+    ctx.fillStyle = revenueByDay[i] > 0 ? "#F0770D" : "#E4D9C8";
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x, y, barW, h, 3); else ctx.rect(x, y, barW, h);
+    ctx.fill();
+    if (i % 2 === 0 || days.length <= 10) {
+      ctx.fillStyle = "#8C7A68";
+      ctx.textAlign = "center";
+      ctx.fillText(d.label, x + barW / 2, cssH - 6);
+    }
+  });
+}
+
+function renderSales() {
+  const todayD = parseDate(nowLabel());
+  const validSales = state.sales.filter(s => !s.returned);
+  const isToday = s => { const d = parseDate(s.date); return d.day === todayD.day && d.month === todayD.month && d.year === todayD.year; };
+  const isMonth = s => { const d = parseDate(s.date); return d.month === todayD.month && d.year === todayD.year; };
+  const todaySales = validSales.filter(isToday);
+  const monthSales = validSales.filter(isMonth);
+
+  function catStats(salesArr, category) {
+    let revenue = 0, profit = 0;
+    salesArr.forEach(s => s.items.forEach(it => {
+      const cat = it.category || "accessory";
+      if (cat === category) { revenue += it.price * it.qty; profit += it.qty * (it.price - (it.costPrice || 0)); }
+    }));
+    return { revenue, profit };
+  }
+  const accToday = catStats(todaySales, "accessory");
+  const accMonth = catStats(monthSales, "accessory");
+  const phToday = catStats(todaySales, "phone");
+  const phMonth = catStats(monthSales, "phone");
+
+  const rankSource = state.rankPeriod === "month" ? monthSales : validSales;
+  const map = {};
+  rankSource.forEach(s => s.items.forEach(it => {
+    if (!map[it.barcode]) map[it.barcode] = { name: it.name, qty: 0 };
+    map[it.barcode].qty += it.qty;
+  }));
+  const bestSellers = Object.values(map).sort((a, b) => b.qty - a.qty).slice(0, 5);
+  const maxQty = bestSellers.length ? bestSellers[0].qty : 1;
+
+  const dateToKey = d => `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
+  const todayKeyStr = dateToKey(new Date());
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayKeyStr = dateToKey(yesterday);
+  const toDateInputVal = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const todayKeyDateInput = toDateInputVal(new Date());
+  const yesterdayKeyDateInput = toDateInputVal(yesterday);
+  let filteredSales = state.sales;
+  if (state.salesDateFilter) {
+    const [fy, fm, fd] = state.salesDateFilter.split("-").map(n => parseInt(n, 10));
+    filteredSales = state.sales.filter(s => { const d = parseDate(s.date); return d.day === fd && d.month === fm && d.year === fy; });
+  }
+
+  return `
+  <div class="space-y">
+    <div class="stat-box">
+      <div class="row" style="margin-bottom:12px;">${ICONS.scan}<p style="font-weight:700; font-size:14px; color:#C9B8A3; margin:0;">إحصائيات الاكسسوارات</p></div>
+      <div class="stat-grid">
+        <div><p class="stat-label">دخل اليوم</p><p class="stat-value" style="color:var(--tan);">${fmt(accToday.revenue)} د.م</p></div>
+        <div><p class="stat-label">ربح صافي اليوم</p><p class="stat-value" style="color:var(--green2);">${fmt(accToday.profit)} د.م</p></div>
+        <div class="col-full"><p class="stat-label">دخل الشهر</p><p class="stat-value" style="color:var(--tan);">${fmt(accMonth.revenue)} د.م</p></div>
+        <div class="col-full"><p class="stat-label">ربح صافي الشهر</p><p class="stat-value" style="color:var(--green2);">${fmt(accMonth.profit)} د.م</p></div>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <div class="row" style="margin-bottom:12px;">${ICONS.smartphone}<p style="font-weight:700; font-size:14px; color:#C9B8A3; margin:0;">إحصائيات الهواتف (منفصلة)</p></div>
+      <div class="stat-grid">
+        <div><p class="stat-label">دخل اليوم</p><p class="stat-value" style="color:var(--tan);">${fmt(phToday.revenue)} د.م</p></div>
+        <div><p class="stat-label">ربح صافي اليوم</p><p class="stat-value" style="color:var(--green2);">${fmt(phToday.profit)} د.م</p></div>
+        <div class="col-full"><p class="stat-label">دخل الشهر</p><p class="stat-value" style="color:var(--tan);">${fmt(phMonth.revenue)} د.م</p></div>
+        <div class="col-full"><p class="stat-label">ربح صافي الشهر</p><p class="stat-value" style="color:var(--green2);">${fmt(phMonth.profit)} د.م</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p style="font-weight:700; font-size:14px; margin:0 0 12px;">الدخل خلال آخر 14 يوم (اكسسوارات + هواتف)</p>
+      <canvas id="salesChart" width="600" height="160" style="width:100%; height:140px; display:block;"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between; margin-bottom:12px;">
+        <div class="row">${ICONS.trend}<p style="font-weight:700; font-size:14px; margin:0;">الأكثر مبيعا</p></div>
+        <div class="row" style="gap:4px;">
+          <button class="filter-btn ${state.rankPeriod === 'all' ? 'active' : ''}" onclick="state.rankPeriod='all'; render();">الكل</button>
+          <button class="filter-btn ${state.rankPeriod === 'month' ? 'active' : ''}" onclick="state.rankPeriod='month'; render();">هاد الشهر</button>
+        </div>
+      </div>
+      ${bestSellers.length === 0 ? `<p class="muted" style="font-size:12px; text-align:center; padding:16px 0;">ماكاينش بيوعات بعد فهاد المدة.</p>` :
+        bestSellers.map((b, i) => `
+        <div class="row" style="margin-bottom:10px;">
+          <span style="font-size:12px; font-weight:900; color:var(--muted); width:16px;">${i + 1}</span>
+          <div style="flex:1; min-width:0;">
+            <div class="row" style="justify-content:space-between;">
+              <p style="font-size:14px; font-weight:700; margin:0;">${esc(b.name)}</p>
+              <span class="muted" style="font-size:12px;">${b.qty} مبيعة</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.max(6, (b.qty / maxQty) * 100)}%;"></div></div>
+          </div>
+        </div>`).join("")}
+    </div>
+
+    <div class="card">
+      <p style="font-weight:700; font-size:14px; margin:0 0 10px;">📅 شوف مبيعات يوم معين</p>
+      <div class="row" style="flex-wrap:wrap; gap:8px;">
+        <input type="date" value="${state.salesDateFilter}" style="max-width:170px;" onchange="state.salesDateFilter=this.value; render();">
+        <button class="filter-btn ${state.salesDateFilter === todayKeyDateInput ? 'active' : ''}" onclick="state.salesDateFilter='${todayKeyDateInput}'; render();">اليوم</button>
+        <button class="filter-btn ${state.salesDateFilter === yesterdayKeyDateInput ? 'active' : ''}" onclick="state.salesDateFilter='${yesterdayKeyDateInput}'; render();">البارح</button>
+        ${state.salesDateFilter ? `<button class="filter-btn" onclick="state.salesDateFilter=''; render();">✕ كل الأيام</button>` : ""}
+      </div>
+      ${state.salesDateFilter ? `<p class="muted" style="font-size:12px; margin:10px 0 0;">${filteredSales.filter(s=>!s.returned).length} مبيعة صافية — دخل: ${fmt(filteredSales.filter(s=>!s.returned).reduce((s,x)=>s+x.total,0))} د.م — ربح: ${fmt(filteredSales.filter(s=>!s.returned).reduce((s,x)=>s+saleProfit(x),0))} د.م</p>` : ""}
+    </div>
+
+    ${filteredSales.length === 0 ? `<p class="empty">${state.salesDateFilter ? "ماكاينش بيوعات فهاد اليوم." : "ماكاينش عمليات بيع بعد."}</p>` :
+      `<div class="space-y">${filteredSales.map(s => renderSaleRow(s)).join("")}</div>`}
+  </div>`;
+}
+
+function renderSaleRow(s) {
+  const open = state.salesOpen === s.id;
+  return `<div class="card" style="padding:0; ${s.returned ? "opacity:.6;" : ""}">
+    <button style="width:100%; background:none; border:none; padding:12px; cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="toggleSaleOpen(${s.id})">
+      <div style="text-align:right;">
+        <p class="muted" style="font-size:12px; margin:0;">${s.date}</p>
+        <p class="muted" style="font-size:12px; margin:0; display:flex; align-items:center; gap:6px;">${s.items.length} منتج ${s.returned ? `<span class="badge badge-red">تم الإرجاع</span>` : ""}</p>
+      </div>
+      <p style="font-weight:900; margin:0; ${s.returned ? "text-decoration:line-through; color:var(--muted);" : "color:var(--accent);"}">${fmt(s.total)} د.م</p>
+    </button>
+    ${open ? `
+      <div style="border-top:1px solid var(--border);">
+        ${s.items.map(it => {
+          const prod = state.products[it.barcode];
+          const img = prod && prod.image ? prod.image : (it.image || "");
+          return `<div class="row" style="justify-content:space-between; padding:8px 12px; font-size:13px; border-bottom:1px solid var(--border);">
+            <div class="row" style="gap:8px;">
+              <div class="thumb" style="width:36px;height:36px;">${img ? `<img src="${img}"/>` : ICONS.image}</div>
+              <span>${esc(it.name)} × ${it.qty}</span>
+            </div>
+            <span style="font-weight:700;">${fmt(it.price * it.qty)} د.م</span>
+          </div>`;
+        }).join("")}
+        ${!s.returned ? `
+        <div style="padding:12px; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="printSaleReceipt(${s.id})">🧾 طباعة</button>
+          ${state.confirmReturn === s.id ? `
+            <div class="row">
+              <span class="muted" style="font-size:12px; flex:1;">متأكد؟</span>
+              <button class="btn btn-danger" style="padding:6px 12px; font-size:12px;" onclick="doReturn(${s.id})">أكد الإرجاع</button>
+              <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="state.confirmReturn=null; render();">تراجع</button>
+            </div>` : `
+            <div class="row" style="gap:10px;">
+              <button style="background:rgba(176,69,59,.08); border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 10px; font-weight:700; font-size:12px; cursor:pointer;" onclick="askReturnSale(${s.id})">✕ إرجاع البيع (روتور)</button>
+              <button style="background:rgba(176,69,59,.08); border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 10px; font-weight:700; font-size:12px; cursor:pointer;" onclick="askDeleteSale(${s.id})">🗑️ مسح البيع نهائياً</button>
+            </div>`}
+        </div>` : `<div style="padding:12px; display:flex; align-items:center; gap:14px;">
+          <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="printSaleReceipt(${s.id})">🧾 طباعة</button>
+          ${state.confirmDeleteSale === s.id ? `
+            <span class="muted" style="font-size:12px;">متأكد؟</span>
+            <button class="btn btn-danger" style="padding:6px 12px; font-size:12px;" onclick="doDeleteSale(${s.id})">أكد المسح</button>
+            <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="state.confirmDeleteSale=null; render();">تراجع</button>
+          ` : `<button style="background:rgba(176,69,59,.08); border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 10px; font-weight:700; font-size:12px; cursor:pointer;" onclick="askDeleteSale(${s.id})">🗑️ مسح نهائياً</button>`}
+        </div>`}
+      </div>` : ""}
+  </div>`;
+}
+function toggleSaleOpen(id) { state.salesOpen = state.salesOpen === id ? null : id; render(); }
+async function doReturn(id) {
+  if (!(await requireAdmin("إرجاع/تعديل عملية بيع"))) return;
+  const sale = state.sales.find(s => s.id === id);
+  if (!sale) return;
+  sale.items.forEach(it => { if (state.products[it.barcode]) state.products[it.barcode].qty += it.qty; });
+  sale.returned = true; sale.returnDate = nowLabel();
+  state.confirmReturn = null;
+  save(); render();
+}
+async function askDeleteSale(id) {
+  if (!(await requireAdmin("مسح عملية بيع نهائياً"))) return;
+  state.confirmDeleteSale = id; render();
+}
+async function doDeleteSale(id) {
+  if (!(await requireAdmin("مسح عملية بيع نهائياً"))) return;
+  state.sales = state.sales.filter(s => s.id !== id);
+  state.confirmDeleteSale = null;
+  save(); render();
+}
+
+/* ================= Repairs ================= */
+function renderRepairs() {
+  const f = state.rForm;
+  const statusLabel = { pending: "فالانتظار", inprogress: "كيتصلح", ready: "جاهز للتسليم", delivered: "تسلم للزبون" };
+  const statusClass = { pending: "badge-red", inprogress: "badge-gray", ready: "badge-green", delivered: "badge-green" };
+  const filtered = state.repairs.filter(r => state.rFilter === "pending" ? r.status !== "delivered" : state.rFilter === "done" ? r.status === "delivered" : true);
+
+  const todayD = parseDate(nowLabel());
+  const isToday = r => { const d = parseDate(r.date); return d.day === todayD.day && d.month === todayD.month && d.year === todayD.year; };
+  const isMonth = r => { const d = parseDate(r.date); return d.month === todayD.month && d.year === todayD.year; };
+  const validRepairs = state.repairs.filter(r => !r.cancelled);
+  const todayR = validRepairs.filter(isToday);
+  const monthR = validRepairs.filter(isMonth);
+  const sumField = (arr, field) => arr.reduce((s, r) => s + (r[field] || 0), 0);
+  const repairProfit = r => (r.repairPrice || 0) - (r.costPrice || 0);
+  const todayRevenue = sumField(todayR, "repairPrice");
+  const todayProfit = todayR.reduce((s, r) => s + repairProfit(r), 0);
+  const monthRevenue = sumField(monthR, "repairPrice");
+  const monthProfit = monthR.reduce((s, r) => s + repairProfit(r), 0);
+
+  return `
+  <div class="space-y">
+    <div class="stat-box">
+      <div class="row" style="margin-bottom:12px;">${ICONS.wrench}<p style="font-weight:700; font-size:14px; color:#C9B8A3; margin:0;">إحصائيات الإصلاحات (منفصلة على الاكسسوارات)</p></div>
+      <div class="stat-grid">
+        <div><p class="stat-label">دخل اليوم</p><p class="stat-value" style="color:var(--tan);">${fmt(todayRevenue)} د.م</p></div>
+        <div><p class="stat-label">ربح صافي اليوم</p><p class="stat-value" style="color:var(--green2);">${fmt(todayProfit)} د.م</p></div>
+        <div class="col-full"><p class="stat-label">دخل الشهر</p><p class="stat-value" style="color:var(--tan);">${fmt(monthRevenue)} د.م</p></div>
+        <div class="col-full"><p class="stat-label">ربح صافي الشهر</p><p class="stat-value" style="color:var(--green2);">${fmt(monthProfit)} د.م</p></div>
+      </div>
+    </div>
+
+    <div class="card space-y">
+      <p style="font-weight:700; font-size:14px; margin:0;">زيد إصلاح جديد</p>
+      <div class="grid2">
+        <div style="grid-column:span 2;"><label class="field-label">نوع الهاتف</label><input type="text" value="${esc(f.phoneType)}" placeholder="مثلا: iPhone 12 / Samsung A54" oninput="state.rForm.phoneType=this.value"></div>
+        <div style="grid-column:span 2;"><label class="field-label">المشكل</label><input type="text" value="${esc(f.issue)}" placeholder="مثلا: شاشة مكسورة، ماكيتشحنش..." oninput="state.rForm.issue=this.value"></div>
+        <div><label class="field-label">تمن شراء القطعة (جملة)</label><input type="number" step="0.01" value="${esc(f.costPrice)}" oninput="state.rForm.costPrice=this.value"></div>
+        <div><label class="field-label">تمن الإصلاح المتفق عليه</label><input type="number" step="0.01" value="${esc(f.repairPrice)}" oninput="state.rForm.repairPrice=this.value"></div>
+      </div>
+      ${(() => {
+        const c = parseFloat(f.costPrice) || 0, p = parseFloat(f.repairPrice) || 0;
+        if (f.costPrice === "" && f.repairPrice === "") return "";
+        const m = p - c;
+        return `<p class="muted" style="font-size:12px; margin:0;">الربح المتوقع: <span style="font-weight:700; color:${m >= 0 ? 'var(--success)' : 'var(--danger)'};">${fmt(m)} د.م</span></p>`;
+      })()}
+      ${state.rError ? `<p style="color:var(--danger); font-size:12px; margin:0;">${esc(state.rError)}</p>` : ""}
+      <button class="btn btn-accent" onclick="submitRepair()">زيد الإصلاح</button>
+    </div>
+
+    <div class="row">
+      <button class="filter-btn ${state.rFilter === 'pending' ? 'active' : ''}" onclick="state.rFilter='pending'; render();">نشيطة</button>
+      <button class="filter-btn ${state.rFilter === 'done' ? 'active' : ''}" onclick="state.rFilter='done'; render();">تسلمو</button>
+      <button class="filter-btn ${state.rFilter === 'all' ? 'active' : ''}" onclick="state.rFilter='all'; render();">الكل</button>
+    </div>
+
+    ${filtered.length === 0 ? `<p class="empty">ماكاينش إصلاحات هنا.</p>` :
+      `<div class="space-y">${filtered.map(r => `
+      <div class="card">
+        <div class="row" style="align-items:flex-start; justify-content:space-between;">
+          <div style="min-width:0;">
+            <p style="font-weight:700; margin:0;">${esc(r.phoneType)}</p>
+            <p class="muted" style="font-size:12px; margin:2px 0 0;">${esc(r.issue)}</p>
+            <p class="muted" style="font-size:12px; margin:2px 0 0;">تمن الإصلاح: <b>${fmt(r.repairPrice)} د.م</b> — الربح: <b style="color:${repairProfit(r) >= 0 ? 'var(--success)' : 'var(--danger)'};">${fmt(repairProfit(r))} د.م</b></p>
+            <p class="muted" style="font-size:10px; margin:4px 0 0;">${r.date}</p>
+          </div>
+          <div class="row" style="align-items:flex-start;">
+            <span class="badge ${statusClass[r.status]}">${statusLabel[r.status]}</span>
+            <button style="background:rgba(176,69,59,.08); border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="deleteRepair(${r.id})">${ICONS.trash} حذف</button>
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px; flex-wrap:wrap;">
+          <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="printRepairReceipt(${r.id})">🧾 طباعة</button>
+          ${r.status !== "inprogress" ? `<button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="setRepairStatus(${r.id},'inprogress')">كيتصلح</button>` : ""}
+          ${r.status !== "ready" ? `<button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="setRepairStatus(${r.id},'ready')">جاهز للتسليم</button>` : ""}
+          ${r.status !== "delivered" ? `<button class="btn btn-success" style="padding:6px 12px; font-size:12px;" onclick="setRepairStatus(${r.id},'delivered')">تسلم للزبون</button>` : ""}
+          ${r.status !== "pending" ? `<button class="btn" style="background:none; color:var(--muted); padding:6px 12px; font-size:12px;" onclick="setRepairStatus(${r.id},'pending')">رجع للانتظار</button>` : ""}
+        </div>
+      </div>`).join("")}</div>`}
+  </div>`;
+}
+function submitRepair() {
+  const f = state.rForm;
+  if (!f.phoneType.trim() || !f.issue.trim() || f.repairPrice === "") { playBeep("error"); state.rError = "خاصك تعمر نوع الهاتف، المشكل، وتمن الإصلاح"; render(); return; }
+  state.repairs.unshift({
+    id: Date.now(), phoneType: f.phoneType.trim(), issue: f.issue.trim(),
+    costPrice: parseFloat(f.costPrice) || 0, repairPrice: parseFloat(f.repairPrice) || 0,
+    date: nowLabel(), status: "pending",
+  });
+  state.rForm = { phoneType: "", issue: "", costPrice: "", repairPrice: "" };
+  state.rError = "";
+  save(); render();
+}
+function setRepairStatus(id, status) { const r = state.repairs.find(x => x.id === id); if (r) { r.status = status; save(); render(); } }
+async function deleteRepair(id) {
+  if (!(await requireAdmin("حذف عملية إصلاح"))) return; state.repairs = state.repairs.filter(r => r.id !== id); save(); render(); }
+
+/* ================= Debts & Credit ================= */
+function normalizeMoroccanPhone(raw) {
+  let n = (raw || "").replace(/[^0-9]/g, "");
+  if (n.startsWith("00212")) n = n.slice(2);
+  else if (n.startsWith("212")) { /* already has country code */ }
+  else if (n.startsWith("0")) n = "212" + n.slice(1);
+  else n = "212" + n;
+  return n;
+}
+function sendDebtReminder(id) {
+  const d = state.debts.find(x => x.id === id);
+  if (!d || !d.customerPhone) return;
+  const rem = debtRemaining(d);
+  const phone = normalizeMoroccanPhone(d.customerPhone);
+  const msg = `السلام ${d.customerName}، كنذكرك بلي باقي عليك ${fmt(rem)} د.م عند إصلاحات حمزة${d.notes ? " (" + d.notes + ")" : ""}. الله يسهل 🙏`;
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+function debtRemaining(d) {
+  const paidSum = (d.payments || []).reduce((s, p) => s + p.amount, 0);
+  return Math.max(0, (d.amount || 0) - paidSum);
+}
+function renderDebts() {
+  const f = state.dForm;
+  const totalOutstanding = state.debts.reduce((s, d) => s + debtRemaining(d), 0);
+  const filtered = state.debts.filter(d => {
+    const rem = debtRemaining(d);
+    if (state.dFilter === "open") return rem > 0;
+    if (state.dFilter === "paid") return rem <= 0;
+    return true;
+  });
+  return `
+  <div class="space-y">
+    <div class="stat-box">
+      <div class="row" style="margin-bottom:8px;">${ICONS.debt}<p style="font-weight:700; font-size:14px; color:#C9B8A3; margin:0;">الديون والكريدي</p></div>
+      <p class="stat-label">مجموع الباقي لي على الزبناء</p>
+      <p class="stat-value" style="color:${totalOutstanding > 0 ? 'var(--tan)' : 'var(--green2)'}; font-size:24px;">${fmt(totalOutstanding)} د.م</p>
+    </div>
+
+    <div class="card space-y">
+      <p style="font-weight:700; font-size:14px; margin:0;">زيد دين جديد (بيع بالكريدي)</p>
+      <div class="grid2">
+        <div><label class="field-label">اسم الزبون</label><input type="text" value="${esc(f.customerName)}" oninput="state.dForm.customerName=this.value"></div>
+        <div><label class="field-label">رقم الهاتف (اختياري)</label><input type="text" value="${esc(f.customerPhone)}" placeholder="06XXXXXXXX" oninput="state.dForm.customerPhone=this.value"></div>
+        <div style="grid-column:span 2;"><label class="field-label">المبلغ الإجمالي (د.م)</label><input type="number" step="0.01" value="${esc(f.amount)}" oninput="state.dForm.amount=this.value"></div>
+        <div style="grid-column:span 2;"><label class="field-label">ملاحظات (اختياري)</label><input type="text" value="${esc(f.notes)}" placeholder="مثلا: هاتف iPhone 12" oninput="state.dForm.notes=this.value"></div>
+      </div>
+      ${state.dError ? `<p style="color:var(--danger); font-size:12px; margin:0;">${esc(state.dError)}</p>` : ""}
+      <button class="btn btn-accent" onclick="submitDebt()">زيد الدين</button>
+    </div>
+
+    <div class="row">
+      <button class="filter-btn ${state.dFilter === 'open' ? 'active-danger' : ''}" onclick="state.dFilter='open'; render();">باقي عليهم</button>
+      <button class="filter-btn ${state.dFilter === 'paid' ? 'active' : ''}" onclick="state.dFilter='paid'; render();">مؤداة</button>
+      <button class="filter-btn ${state.dFilter === 'all' ? 'active' : ''}" onclick="state.dFilter='all'; render();">الكل</button>
+    </div>
+
+    ${filtered.length === 0 ? `<p class="empty">ماكاينش ديون هنا.</p>` :
+      `<div class="space-y">${filtered.map(d => renderDebtRow(d)).join("")}</div>`}
+  </div>`;
+}
+function renderDebtRow(d) {
+  const rem = debtRemaining(d);
+  const paidSum = (d.payments || []).reduce((s, p) => s + p.amount, 0);
+  const payVal = state.dPayAmount[d.id] || "";
+  return `<div class="card">
+    <div class="row" style="justify-content:space-between; align-items:flex-start;">
+      <div style="min-width:0;">
+        <p style="font-weight:700; margin:0;">${esc(d.customerName)}</p>
+        ${d.customerPhone ? `<p class="muted" style="font-size:12px; margin:2px 0 0; display:flex; align-items:center; gap:4px;">${ICONS.phone} ${esc(d.customerPhone)}</p>` : ""}
+        ${d.notes ? `<p class="muted" style="font-size:12px; margin:2px 0 0;">${esc(d.notes)}</p>` : ""}
+        <p class="muted" style="font-size:10px; margin:4px 0 0;">${d.date}</p>
+      </div>
+      <div style="text-align:left;">
+        <span class="badge ${rem <= 0 ? 'badge-green' : 'badge-red'}">${rem <= 0 ? "مؤدى" : "باقي " + fmt(rem) + " د.م"}</span>
+        <button style="background:rgba(176,69,59,.08); border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer; margin-right:6px;" onclick="deleteDebt(${d.id})">${ICONS.trash} حذف</button>
+      </div>
+    </div>
+    <div class="row" style="justify-content:space-between; margin-top:8px; font-size:12px;" class="muted">
+      <span class="muted">الإجمالي: ${fmt(d.amount)} د.م — تسدد: ${fmt(paidSum)} د.م</span>
+    </div>
+    ${rem > 0 ? `
+    <div class="row" style="margin-top:10px; flex-wrap:wrap;">
+      <input type="number" step="0.01" placeholder="مبلغ التسديد" value="${payVal}" style="max-width:140px;" oninput="state.dPayAmount[${d.id}]=this.value">
+      <button class="btn btn-success" style="padding:7px 14px; font-size:12px;" onclick="payDebt(${d.id})">سدد دفعة</button>
+      ${d.customerPhone ? `<button class="btn" style="background:#25D366; color:#fff; padding:7px 14px; font-size:12px;" onclick="sendDebtReminder(${d.id})">🟢 تذكير واتساب</button>` : ""}
+    </div>` : ""}
+  </div>`;
+}
+function submitDebt() {
+  const f = state.dForm;
+  if (!f.customerName.trim() || f.amount === "" || (parseFloat(f.amount) || 0) <= 0) {
+    playBeep("error"); state.dError = "خاصك تعمر اسم الزبون والمبلغ"; render(); return;
+  }
+  state.debts.unshift({
+    id: Date.now(), customerName: f.customerName.trim(), customerPhone: f.customerPhone.trim(),
+    amount: parseFloat(f.amount) || 0, notes: f.notes.trim(), date: nowLabel(), payments: [],
+  });
+  state.dForm = { customerName: "", customerPhone: "", amount: "", notes: "" };
+  state.dError = "";
+  save(); render();
+}
+function payDebt(id) {
+  const d = state.debts.find(x => x.id === id);
+  if (!d) return;
+  const val = parseFloat(state.dPayAmount[id]);
+  if (!val || val <= 0) return;
+  const rem = debtRemaining(d);
+  const amount = Math.min(val, rem);
+  d.payments = d.payments || [];
+  d.payments.push({ amount, date: nowLabel() });
+  state.dPayAmount[id] = "";
+  save(); render();
+}
+async function deleteDebt(id) {
+  if (!(await requireAdmin("حذف دين/كريدي"))) return; state.debts = state.debts.filter(d => d.id !== id); save(); render(); }
+
+/* ================= Expenses ================= */
+function renderExpenses() {
+  const f = state.eForm;
+  const todayD = parseDate(nowLabel());
+  const isToday = e => { const d = parseDate(e.date); return d.day === todayD.day && d.month === todayD.month && d.year === todayD.year; };
+  const isMonth = e => { const d = parseDate(e.date); return d.month === todayD.month && d.year === todayD.year; };
+  const todayTotal = state.expenses.filter(isToday).reduce((s, e) => s + e.amount, 0);
+  const monthTotal = state.expenses.filter(isMonth).reduce((s, e) => s + e.amount, 0);
+  return `
+  <div class="space-y">
+    <div class="stat-box">
+      <div class="row" style="margin-bottom:12px;">${ICONS.wallet}<p style="font-weight:700; font-size:14px; color:#C9B8A3; margin:0;">المصاريف</p></div>
+      <div class="stat-grid">
+        <div><p class="stat-label">مصروف اليوم</p><p class="stat-value" style="color:var(--danger);">${fmt(todayTotal)} د.م</p></div>
+        <div><p class="stat-label">مصروف الشهر</p><p class="stat-value" style="color:var(--danger);">${fmt(monthTotal)} د.م</p></div>
+      </div>
+    </div>
+    <div class="card space-y">
+      <p style="font-weight:700; font-size:14px; margin:0;">زيد مصروف</p>
+      <div class="grid2">
+        <div style="grid-column:span 2;"><label class="field-label">وصف المصروف</label><input type="text" value="${esc(f.desc)}" placeholder="مثلا: كراء المحل، فاكتورة الكهرباء..." oninput="state.eForm.desc=this.value"></div>
+        <div style="grid-column:span 2;"><label class="field-label">المبلغ (د.م)</label><input type="number" step="0.01" value="${esc(f.amount)}" oninput="state.eForm.amount=this.value"></div>
+      </div>
+      ${state.eError ? `<p style="color:var(--danger); font-size:12px; margin:0;">${esc(state.eError)}</p>` : ""}
+      <button class="btn btn-accent" onclick="submitExpense()">زيد المصروف</button>
+    </div>
+    ${state.expenses.length === 0 ? `<p class="empty">ماكاينش مصاريف مسجلة بعد.</p>` :
+      `<div class="list">${state.expenses.map(e => `
+      <div class="item row" style="justify-content:space-between;">
+        <div style="min-width:0;">
+          <p style="font-weight:700; margin:0;">${esc(e.desc)}</p>
+          <p class="muted" style="font-size:11px; margin:0;">${e.date}</p>
+        </div>
+        <div class="row">
+          <span style="font-weight:700; color:var(--danger);">${fmt(e.amount)} د.م</span>
+          <button style="background:rgba(176,69,59,.08); border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="deleteExpense(${e.id})">${ICONS.trash} حذف</button>
+        </div>
+      </div>`).join("")}</div>`}
+  </div>`;
+}
+function submitExpense() {
+  const f = state.eForm;
+  if (!f.desc.trim() || f.amount === "" || (parseFloat(f.amount) || 0) <= 0) {
+    playBeep("error"); state.eError = "خاصك تعمر الوصف والمبلغ"; render(); return;
+  }
+  state.expenses.unshift({ id: Date.now(), desc: f.desc.trim(), amount: parseFloat(f.amount) || 0, date: nowLabel() });
+  state.eForm = { desc: "", amount: "" };
+  state.eError = "";
+  save(); render();
+}
+async function deleteExpense(id) {
+  if (!(await requireAdmin("حذف مصروف"))) return; state.expenses = state.expenses.filter(e => e.id !== id); save(); render(); }
+
+/* ================= Dashboard ================= */
+function setCashOpening(dateKey, val) {
+  const num = parseFloat(val);
+  state.cashOpenings[dateKey] = isNaN(num) ? 0 : num;
+  save(); render();
+}
+
+function renderDashboard() {
+  const todayD = parseDate(nowLabel());
+  const isToday = x => { const d = parseDate(x.date); return d.day === todayD.day && d.month === todayD.month && d.year === todayD.year; };
+  const isMonth = x => { const d = parseDate(x.date); return d.month === todayD.month && d.year === todayD.year; };
+
+  const validSales = state.sales.filter(s => !s.returned);
+  const todaySales = validSales.filter(isToday), monthSales = validSales.filter(isMonth);
+  const salesRevenue = arr => arr.reduce((s, x) => s + x.total, 0);
+  const salesProfit = arr => arr.reduce((s, x) => s + saleProfit(x), 0);
+
+  const validRepairs = state.repairs.filter(r => !r.cancelled);
+  const todayRepairs = validRepairs.filter(isToday), monthRepairs = validRepairs.filter(isMonth);
+  const repairRevenue = arr => arr.reduce((s, r) => s + (r.repairPrice || 0), 0);
+  const repairProfit = arr => arr.reduce((s, r) => s + ((r.repairPrice || 0) - (r.costPrice || 0)), 0);
+
+  const todayExpenses = state.expenses.filter(isToday).reduce((s, e) => s + e.amount, 0);
+  const monthExpenses = state.expenses.filter(isMonth).reduce((s, e) => s + e.amount, 0);
+
+  const todayRevenue = salesRevenue(todaySales) + repairRevenue(todayRepairs);
+  const todayGrossProfit = salesProfit(todaySales) + repairProfit(todayRepairs);
+  const todayNet = todayGrossProfit - todayExpenses;
+  const monthRevenue = salesRevenue(monthSales) + repairRevenue(monthRepairs);
+  const monthGrossProfit = salesProfit(monthSales) + repairProfit(monthRepairs);
+  const monthNet = monthGrossProfit - monthExpenses;
+
+  const productCount = Object.keys(state.products).length;
+  const totalUnits = Object.values(state.products).reduce((s, p) => s + (p.qty || 0), 0);
+  const accCapital = Object.values(state.products).filter(p => p.category !== "phone").reduce((s, p) => s + (p.qty || 0) * (p.costPrice || 0), 0);
+  const phCapital = Object.values(state.products).filter(p => p.category === "phone").reduce((s, p) => s + (p.qty || 0) * (p.costPrice || 0), 0);
+  const totalCapital = accCapital + phCapital;
+  const outstandingDebts = state.debts.reduce((s, d) => s + debtRemaining(d), 0);
+  const lowStockCount = Object.values(state.products).filter(p => p.qty <= 5).length;
+
+  const todayKey = nowLabel().split(" - ")[0];
+  const openingCash = parseFloat(state.cashOpenings[todayKey]) || 0;
+  const debtPaymentsToday = state.debts.reduce((sum, d) => sum + (d.payments || []).filter(p => p.date.split(" - ")[0] === todayKey).reduce((s, p) => s + p.amount, 0), 0);
+  const expectedCash = openingCash + todayRevenue + debtPaymentsToday - todayExpenses;
+
+  return `
+  <div class="space-y">
+    <div class="stat-box">
+      <div class="row" style="margin-bottom:12px;">${ICONS.dashboard}<p style="font-weight:700; font-size:14px; color:#C9B8A3; margin:0;">نظرة شاملة على المحل</p></div>
+      <div class="stat-grid">
+        <div><p class="stat-label">عدد الأصناف</p><p class="stat-value">${productCount}</p></div>
+        <div><p class="stat-label">إجمالي القطع بالستوك</p><p class="stat-value">${totalUnits}</p></div>
+        <div><p class="stat-label">🔌 رأس مال الاكسسوارات</p><p class="stat-value" style="color:var(--tan); font-size:20px;">${fmt(accCapital)} د.م</p></div>
+        <div><p class="stat-label">📱 رأس مال الهواتف</p><p class="stat-value" style="color:var(--tan); font-size:20px;">${fmt(phCapital)} د.م</p></div>
+        <div class="col-full"><p class="stat-label">رأس المال الإجمالي (اكسسوارات + هواتف)</p><p class="stat-value" style="color:var(--green2); font-size:24px;">${fmt(totalCapital)} د.م</p></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card" style="text-align:center;">
+        <p class="muted" style="font-size:11px; margin:0 0 4px;">ديون باقية على الزبناء</p>
+        <p style="font-size:20px; font-weight:900; margin:0; color:${outstandingDebts > 0 ? 'var(--danger)' : 'var(--success)'};">${fmt(outstandingDebts)} د.م</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <p class="muted" style="font-size:11px; margin:0 0 4px;">منتجات قاربت تنفد</p>
+        <p style="font-size:20px; font-weight:900; margin:0; color:${lowStockCount > 0 ? 'var(--danger)' : 'var(--success)'};">${lowStockCount}</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <p style="font-weight:700; font-size:14px; margin:0 0 10px;">💰 صندوق اليوم</p>
+      <div class="row" style="margin-bottom:10px;">
+        <label class="field-label" style="margin:0; white-space:nowrap;">الرصيد الافتتاحي:</label>
+        <input type="number" step="0.01" value="${state.cashOpenings[todayKey] || ""}" placeholder="0" style="max-width:120px;" onchange="setCashOpening('${todayKey}', this.value)">
+      </div>
+      <p class="muted" style="font-size:11px; margin:0;">افتتاحي (${fmt(openingCash)}) + دخل اليوم (${fmt(todayRevenue)}) + تسديد ديون (${fmt(debtPaymentsToday)}) − مصاريف (${fmt(todayExpenses)})</p>
+      <div class="line" style="border-top:1px dashed var(--border); margin:10px 0;"></div>
+      <div class="row" style="justify-content:space-between;">
+        <span style="font-weight:700; font-size:13px;">الصندوق المتوقع الآن</span>
+        <span style="font-weight:900; font-size:22px; color:var(--accent);">${fmt(expectedCash)} د.م</span>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <p style="font-weight:700; font-size:14px; color:#C9B8A3; margin:0 0 12px;">اليوم (اكسسوارات + هواتف + إصلاحات)</p>
+      <div class="stat-grid">
+        <div><p class="stat-label">الدخل</p><p class="stat-value" style="color:var(--tan);">${fmt(todayRevenue)} د.م</p></div>
+        <div><p class="stat-label">المصروف</p><p class="stat-value" style="color:#E8B4AC;">${fmt(todayExpenses)} د.م</p></div>
+        <div class="col-full"><p class="stat-label">الصافي بعد المصاريف</p><p class="stat-value" style="color:${todayNet >= 0 ? 'var(--green2)' : '#E8B4AC'}; font-size:22px;">${fmt(todayNet)} د.م</p></div>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <p style="font-weight:700; font-size:14px; color:#C9B8A3; margin:0 0 12px;">هاد الشهر (اكسسوارات + هواتف + إصلاحات)</p>
+      <div class="stat-grid">
+        <div><p class="stat-label">الدخل</p><p class="stat-value" style="color:var(--tan);">${fmt(monthRevenue)} د.م</p></div>
+        <div><p class="stat-label">المصروف</p><p class="stat-value" style="color:#E8B4AC;">${fmt(monthExpenses)} د.م</p></div>
+        <div class="col-full"><p class="stat-label">الصافي بعد المصاريف</p><p class="stat-value" style="color:${monthNet >= 0 ? 'var(--green2)' : '#E8B4AC'}; font-size:22px;">${fmt(monthNet)} د.م</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p style="font-weight:700; font-size:14px; margin:0 0 12px;">الدخل مقابل المصروف — آخر 6 أشهر</p>
+      <canvas id="dashChart" width="600" height="160" style="width:100%; height:140px; display:block;"></canvas>
+    </div>
+  </div>`;
+}
+
+function drawDashboardChart() {
+  const canvas = document.getElementById("dashChart");
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = canvas.clientWidth || 600, cssH = 140;
+  canvas.width = cssW * dpr; canvas.height = cssH * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, cssH);
+
+  const months = [];
+  const today = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    months.push({ month: d.getMonth() + 1, year: d.getFullYear(), label: `${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getFullYear()).slice(2)}` });
+  }
+  const validSales = state.sales.filter(s => !s.returned);
+  const revByMonth = months.map(m => {
+    let rev = 0;
+    validSales.forEach(s => { const d = parseDate(s.date); if (d.month === m.month && d.year === m.year) rev += s.total; });
+    state.repairs.filter(r => !r.cancelled).forEach(r => { const d = parseDate(r.date); if (d.month === m.month && d.year === m.year) rev += (r.repairPrice || 0); });
+    return rev;
+  });
+  const expByMonth = months.map(m => {
+    let exp = 0;
+    state.expenses.forEach(e => { const d = parseDate(e.date); if (d.month === m.month && d.year === m.year) exp += e.amount; });
+    return exp;
+  });
+  const maxVal = Math.max(1, ...revByMonth, ...expByMonth);
+  const padLeft = 4, padBottom = 20, padTop = 8;
+  const chartW = cssW - padLeft * 2, chartH = cssH - padBottom - padTop;
+  const groupGap = 10, barGap = 2;
+  const groupW = (chartW / months.length) - groupGap;
+  const barW = (groupW - barGap) / 2;
+
+  ctx.font = "10px Tajawal, sans-serif";
+  months.forEach((m, i) => {
+    const gx = padLeft + i * (groupW + groupGap);
+    const hRev = Math.max(1, (revByMonth[i] / maxVal) * chartH);
+    const hExp = Math.max(1, (expByMonth[i] / maxVal) * chartH);
+    ctx.fillStyle = "#F0770D";
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(gx, padTop + chartH - hRev, barW, hRev, 2); else ctx.rect(gx, padTop + chartH - hRev, barW, hRev);
+    ctx.fill();
+    ctx.fillStyle = "#B0453B";
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(gx + barW + barGap, padTop + chartH - hExp, barW, hExp, 2); else ctx.rect(gx + barW + barGap, padTop + chartH - hExp, barW, hExp);
+    ctx.fill();
+    ctx.fillStyle = "#8C7A68";
+    ctx.textAlign = "center";
+    ctx.fillText(m.label, gx + groupW / 2, cssH - 6);
+  });
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#F0770D"; ctx.fillText("● دخل", cssW - 4, 10);
+  ctx.fillStyle = "#B0453B"; ctx.fillText("● مصروف", cssW - 54, 10);
+}
+
+/* ================= Orders ================= */
+function renderOrders() {
+  const f = state.oForm;
+  const statusLabel = { pending: "فالانتظار", received: "وصل للمحل", delivered: "تسلم للزبون" };
+  const statusClass = { pending: "badge-red", received: "badge-gray", delivered: "badge-green" };
+  const filtered = state.orders.filter(o => state.oFilter === "pending" ? o.status !== "delivered" : state.oFilter === "done" ? o.status === "delivered" : true);
+
+  return `
+  <div class="space-y">
+    <div class="card space-y">
+      <p style="font-weight:700; font-size:14px; margin:0;">زيد طلبية زبون (منتج معندناش دابا)</p>
+      <div class="grid2">
+        <div style="grid-column:span 2;"><label class="field-label">اسم المنتج المطلوب</label><input type="text" value="${esc(f.productName)}" placeholder="مثلا: خاتم فضة مقاس 18" oninput="state.oForm.productName=this.value"></div>
+        <div><label class="field-label">اسم الزبون</label><input type="text" value="${esc(f.customerName)}" oninput="state.oForm.customerName=this.value"></div>
+        <div><label class="field-label">رقم الهاتف (اختياري)</label><input type="text" value="${esc(f.customerPhone)}" placeholder="06XXXXXXXX" oninput="state.oForm.customerPhone=this.value"></div>
+        <div><label class="field-label">الكمية</label><input type="number" min="1" value="${esc(f.qty)}" oninput="state.oForm.qty=this.value"></div>
+        <div><label class="field-label">ملاحظات (اختياري)</label><input type="text" value="${esc(f.notes)}" placeholder="اللون، المقاس..." oninput="state.oForm.notes=this.value"></div>
+      </div>
+      ${state.oError ? `<p style="color:var(--danger); font-size:12px; margin:0;">${esc(state.oError)}</p>` : ""}
+      <button class="btn btn-accent" onclick="submitOrder()">زيد الطلبية</button>
+    </div>
+
+    <div class="row">
+      <button class="filter-btn ${state.oFilter === 'pending' ? 'active' : ''}" onclick="state.oFilter='pending'; render();">فالانتظار</button>
+      <button class="filter-btn ${state.oFilter === 'done' ? 'active' : ''}" onclick="state.oFilter='done'; render();">تسلمو</button>
+      <button class="filter-btn ${state.oFilter === 'all' ? 'active' : ''}" onclick="state.oFilter='all'; render();">الكل</button>
+    </div>
+
+    ${filtered.length === 0 ? `<p class="empty">ماكاينش طلبيات هنا.</p>` :
+      `<div class="space-y">${filtered.map(o => `
+      <div class="card">
+        <div class="row" style="align-items:flex-start; justify-content:space-between;">
+          <div style="min-width:0;">
+            <p style="font-weight:700; margin:0;">${esc(o.productName)}</p>
+            <p class="muted" style="font-size:12px; margin:2px 0 0;">الزبون: ${esc(o.customerName)} — الكمية: ${o.qty}</p>
+            ${o.customerPhone ? `<p class="muted" style="font-size:12px; margin:2px 0 0; display:flex; align-items:center; gap:4px;">${ICONS.phone} ${esc(o.customerPhone)}</p>` : ""}
+            ${o.notes ? `<p class="muted" style="font-size:12px; margin:2px 0 0;">ملاحظة: ${esc(o.notes)}</p>` : ""}
+            <p class="muted" style="font-size:10px; margin:4px 0 0;">${o.date}</p>
+          </div>
+          <div class="row" style="align-items:flex-start;">
+            <span class="badge ${statusClass[o.status]}">${statusLabel[o.status]}</span>
+            <button style="background:rgba(176,69,59,.08); border:1px solid var(--danger); color:var(--danger); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="deleteOrder(${o.id})">${ICONS.trash} حذف</button>
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px;">
+          ${o.status !== "received" ? `<button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="setOrderStatus(${o.id},'received')">وصل للمحل</button>` : ""}
+          ${o.status === "received" && o.customerPhone ? `<button class="btn" style="background:#25D366;color:#fff;padding:6px 12px;font-size:12px;" onclick="notifyOrderWhatsApp(${o.id})">${ICONS.phone} واتساب: وصلات الطلبية</button>` : ""}
+          ${o.status !== "delivered" ? `<button class="btn btn-success" style="padding:6px 12px; font-size:12px;" onclick="setOrderStatus(${o.id},'delivered')">تسلم للزبون</button>` : ""}
+          ${o.status !== "pending" ? `<button class="btn" style="background:none; color:var(--muted); padding:6px 12px; font-size:12px;" onclick="setOrderStatus(${o.id},'pending')">رجع للانتظار</button>` : ""}
+        </div>
+      </div>`).join("")}</div>`}
+  </div>`;
+}
+function submitOrder() {
+  const f = state.oForm;
+  if (!f.productName.trim() || !f.customerName.trim()) { playBeep("error"); state.oError = "خاصك تعمر اسم المنتج واسم الزبون"; render(); return; }
+  state.orders.unshift({
+    id: Date.now(), productName: f.productName.trim(), customerName: f.customerName.trim(),
+    customerPhone: f.customerPhone.trim(), qty: parseInt(f.qty) || 1, notes: f.notes.trim(),
+    date: nowLabel(), status: "pending",
+  });
+  state.oForm = { productName: "", customerName: "", customerPhone: "", qty: "1", notes: "" };
+  state.oError = "";
+  save(); render();
+}
+function setOrderStatus(id, status) {
+  const o = state.orders.find(x => x.id === id);
+  if (!o) return;
+  const wasNotReceived = o.status !== "received";
+  o.status = status;
+  save(); render();
+  if (status === "received" && wasNotReceived && o.customerPhone) {
+    notifyOrderWhatsApp(id);
+  }
+}
+function notifyOrderWhatsApp(id) {
+  const o = state.orders.find(x => x.id === id);
+  if (!o || !o.customerPhone) { alert("ماكاينش رقم واتساب ديال الزبون."); return; }
+  let phone = String(o.customerPhone).replace(/[^0-9+]/g, "");
+  if (phone.startsWith("+")) phone = phone.slice(1);
+  else if (phone.startsWith("00")) phone = phone.slice(2);
+  else if (phone.startsWith("0")) phone = "212" + phone.slice(1);
+  else if (!phone.startsWith("212")) phone = "212" + phone;
+  const message = `السلام عليكم ${o.customerName}،
+
+كنعلموك بلي الطلبية ديالك (${o.productName}) وصلات للمحل، والكمية: ${o.qty}.
+
+مرحبا بيك باش تجي تستلمها. شكراً 🙏`;
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank");
+}
+async function deleteOrder(id) {
+  if (!(await requireAdmin("حذف طلبية"))) return; state.orders = state.orders.filter(o => o.id !== id); save(); render(); }
+
+/* ================= Init ================= */
+render();
+renderTodayDate();
+</script>
+</body>
+</html>
