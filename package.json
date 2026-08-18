@@ -1,9 +1,11 @@
 {
   "name": "gestion-hamza",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Application Windows de gestion de stock, caisse, ventes, reparations et dettes - Islahat Hamza",
   "main": "main.js",
   "author": "",
+  "license": "ISC",
+  "main": "main.js",
   "license": "ISC",
   "scripts": {
     "start": "electron .",
