@@ -3,16 +3,10 @@ const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
 let mainWindow = null;
+let updateWindow = null;
 let updateDialogOpen = false;
 let updateDownloading = false;
-
-function showInfo(title, message, detail, buttons = ['حسناً']) {
-  if (!mainWindow || mainWindow.isDestroyed()) return Promise.resolve({ response: 0 });
-  return dialog.showMessageBox(mainWindow, {
-    type: 'info', title, message, detail, buttons,
-    defaultId: 0, cancelId: buttons.length > 1 ? 1 : 0
-  });
-}
+let availableUpdateVersion = null;
 
 function showError(message, detail) {
   if (!mainWindow || mainWindow.isDestroyed()) return;
@@ -21,22 +15,94 @@ function showError(message, detail) {
   }).catch(() => {});
 }
 
-async function startUpdateDownload(version) {
-  if (updateDownloading) return;
-  updateDownloading = true;
-  try {
-    await showInfo('Gestion Hamza — تحديث جديد', `كاينة نسخة جديدة من Gestion Hamza: ${version}`, 'غادي نبدأ دابا تحميل التحديث. خليه مفتوح حتى يكمل التحميل.');
-    await autoUpdater.downloadUpdate();
-  } catch (error) {
-    updateDownloading = false;
-    console.error('[Updater download]', error);
-    showError('ما قدرناش نحملو التحديث', `وقع مشكل أثناء تحميل النسخة ${version}.\n\n${error?.message || error}`);
+function createUpdateWindow(version) {
+  if (updateWindow && !updateWindow.isDestroyed()) {
+    updateWindow.focus();
+    return;
   }
+
+  updateWindow = new BrowserWindow({
+    parent: mainWindow,
+    modal: true,
+    width: 520,
+    height: 300,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    title: 'Gestion Hamza — تحديث',
+    autoHideMenuBar: true,
+    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true }
+  });
+
+  const html = `<!doctype html><html lang="ar"><head><meta charset="UTF-8"><style>
+  body{font-family:Segoe UI,Tahoma,Arial,sans-serif;background:#faf6ef;margin:0;padding:28px;color:#2f2a25;text-align:center}
+  h2{margin:0 0 10px;font-size:23px}.sub{margin:0 0 22px;color:#6d665f;font-size:15px}
+  button{border:0;border-radius:10px;padding:11px 22px;font-size:15px;cursor:pointer;margin:5px}
+  #download{background:#8b5e34;color:white}#later{background:#e7ded2;color:#4b4239}
+  #status{margin-top:18px;font-size:14px;color:#6d665f;min-height:22px}
+  .bar{height:12px;background:#e4ddd5;border-radius:20px;overflow:hidden;margin:12px 0 20px}.fill{height:100%;width:0;background:#8b5e34;transition:width .2s}
+  #install{display:none;background:#2e7d32;color:#fff}.hidden{display:none!important}
+</style></head><body>
+  <h2>🆕 تحديث جديد متوفر</h2>
+  <p class="sub">النسخة الجديدة <b>${version}</b> متوفرة لـ Gestion Hamza.</p>
+  <div id="choice"><button id="download">⬇️ تحميل التحديث</button><button id="later">لاحقاً</button></div>
+  <div id="progress" class="hidden"><div class="bar"><div class="fill" id="fill"></div></div><div id="status">جاري التحميل… 0%</div></div>
+  <button id="install">✅ تثبيت الآن وإعادة التشغيل</button>
+<script>
+const { ipcRenderer } = require('electron');
+</script></body></html>`;
+
+  // Buttons are handled by executeJavaScript from the main process to keep nodeIntegration disabled.
+  updateWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html));
+  updateWindow.webContents.once('did-finish-load', () => {
+    updateWindow.webContents.executeJavaScript(`
+      document.getElementById('download').onclick=()=>document.body.dataset.action='download';
+      document.getElementById('later').onclick=()=>document.body.dataset.action='later';
+      document.getElementById('install').onclick=()=>document.body.dataset.action='install';
+    `).catch(() => {});
+  });
+
+  const poll = setInterval(async () => {
+    if (!updateWindow || updateWindow.isDestroyed()) { clearInterval(poll); return; }
+    try {
+      const action = await updateWindow.webContents.executeJavaScript('document.body.dataset.action || ""');
+      if (action === 'download') {
+        await updateWindow.webContents.executeJavaScript(`
+          document.getElementById('choice').classList.add('hidden');
+          document.getElementById('progress').classList.remove('hidden');
+          document.getElementById('status').textContent='جاري تحميل التحديث… 0%';
+        `);
+        clearInterval(poll);
+        updateDownloading = true;
+        try {
+          await autoUpdater.downloadUpdate();
+        } catch (error) {
+          updateDownloading = false;
+          if (updateWindow && !updateWindow.isDestroyed()) {
+            updateWindow.webContents.executeJavaScript(`document.getElementById('status').textContent=${JSON.stringify('وقع مشكل أثناء التحميل: ' + (error?.message || error))}`).catch(() => {});
+          }
+        }
+      } else if (action === 'later') {
+        clearInterval(poll);
+        updateWindow.close();
+      } else if (action === 'install') {
+        clearInterval(poll);
+        installDownloadedUpdate(version);
+      }
+    } catch (_) {}
+  }, 250);
+
+  updateWindow.on('closed', () => {
+    clearInterval(poll);
+    updateWindow = null;
+    updateDialogOpen = false;
+  });
 }
 
 function installDownloadedUpdate(version) {
-  if (updateDownloading) updateDownloading = false;
+  updateDownloading = false;
   console.log('[Updater] installing downloaded update:', version);
+  if (updateWindow && !updateWindow.isDestroyed()) updateWindow.close();
   setTimeout(() => {
     try { autoUpdater.quitAndInstall(false, true); }
     catch (error) { console.error('[Updater install]', error); try { app.quit(); } catch (_) {} }
@@ -51,29 +117,61 @@ function setupAutoUpdater() {
   autoUpdater.logger = console;
 
   autoUpdater.on('checking-for-update', () => console.log('[Updater] checking for update'));
+
   autoUpdater.on('update-available', info => {
     console.log('[Updater] update available:', info.version);
     if (updateDialogOpen || updateDownloading) return;
     updateDialogOpen = true;
-    startUpdateDownload(info.version).finally(() => { updateDialogOpen = false; });
+    availableUpdateVersion = info.version;
+    createUpdateWindow(info.version);
   });
-  autoUpdater.on('download-progress', progress => console.log(`[Updater] downloading ${progress.percent.toFixed(1)}%`));
+
+  autoUpdater.on('download-progress', progress => {
+    console.log(`[Updater] downloading ${progress.percent.toFixed(1)}%`);
+    if (updateWindow && !updateWindow.isDestroyed()) {
+      const percent = Math.max(0, Math.min(100, progress.percent));
+      updateWindow.webContents.executeJavaScript(`
+        document.getElementById('fill').style.width='${percent.toFixed(1)}%';
+        document.getElementById('status').textContent='جاري تحميل التحديث… ${percent.toFixed(1)}%';
+      `).catch(() => {});
+    }
+  });
+
   autoUpdater.on('update-downloaded', info => {
     updateDownloading = false;
+    availableUpdateVersion = info.version;
     console.log('[Updater] update downloaded:', info.version);
-    if (!mainWindow || mainWindow.isDestroyed()) { installDownloadedUpdate(info.version); return; }
-    dialog.showMessageBox(mainWindow, {
-      type: 'info', title: 'Gestion Hamza — التحديث جاهز',
-      message: `النسخة ${info.version} تحمّلات بنجاح.`,
-      detail: 'ضغط على «تثبيت الآن» باش يسد البرنامج ويثبت النسخة الجديدة تلقائياً.',
-      buttons: ['تثبيت الآن', 'لاحقاً'], defaultId: 0, cancelId: 1, noLink: true
-    }).then(({ response }) => { if (response === 0) installDownloadedUpdate(info.version); }).catch(error => console.error('[Updater install dialog]', error));
+
+    if (!updateWindow || updateWindow.isDestroyed()) {
+      createUpdateWindow(info.version);
+      setTimeout(() => {
+        if (updateWindow && !updateWindow.isDestroyed()) {
+          updateWindow.webContents.executeJavaScript(`
+            document.getElementById('choice').classList.add('hidden');
+            document.getElementById('progress').classList.remove('hidden');
+            document.getElementById('fill').style.width='100%';
+            document.getElementById('status').textContent='✅ التحديث جاهز للتثبيت';
+            document.getElementById('install').style.display='inline-block';
+          `).catch(() => {});
+        }
+      }, 300);
+      return;
+    }
+
+    updateWindow.webContents.executeJavaScript(`
+      document.getElementById('progress').classList.remove('hidden');
+      document.getElementById('fill').style.width='100%';
+      document.getElementById('status').textContent='✅ التحديث جاهز للتثبيت';
+      document.getElementById('install').style.display='inline-block';
+    `).catch(() => {});
   });
+
   autoUpdater.on('error', error => {
     updateDownloading = false;
     console.error('[Updater error]', error);
     showError('وقع مشكل فالتحديث', error?.message || String(error));
   });
+
   setTimeout(() => autoUpdater.checkForUpdates().catch(error => console.error('[Updater check]', error)), 5000);
 }
 
@@ -84,18 +182,13 @@ function injectV107Features() {
   if (window.__v107Installed) return;
   window.__v107Installed = true;
 
-  const oldCheckout = window.checkout;
-  const oldPrintSaleReceipt = window.printSaleReceipt;
   const oldRenderSaleRow = window.renderSaleRow;
 
   window.checkout = async function () {
     if (!state.cart || state.cart.length === 0) return;
     const total = state.cart.reduce((s, i) => s + i.price * i.qty, 0);
 
-    const rawPaid = await showPromptModal(
-      '💵 شحال خلص الزبون؟\\nالمجموع: ' + fmt(total) + ' د.م',
-      { isText: true }
-    );
+    const rawPaid = await showPromptModal('💵 شحال خلص الزبون؟\\nالمجموع: ' + fmt(total) + ' د.م', { isText: true });
     if (rawPaid === null) return;
 
     const paid = parseFloat(String(rawPaid).replace(',', '.'));
@@ -110,73 +203,25 @@ function injectV107Features() {
     const change = Math.max(0, paid - total);
 
     state.cart.forEach(item => {
-      if (state.products[item.barcode]) {
-        state.products[item.barcode].qty = Math.max(0, state.products[item.barcode].qty - item.qty);
-      }
+      if (state.products[item.barcode]) state.products[item.barcode].qty = Math.max(0, state.products[item.barcode].qty - item.qty);
     });
 
-    const sale = {
-      id: Date.now(),
-      date: nowLabel(),
-      items: state.cart.map(item => ({ ...item })),
-      total,
-      paid,
-      remaining,
-      change,
-      paymentStatus: remaining > 0 ? 'partial' : 'paid'
-    };
-
+    const sale = { id: Date.now(), date: nowLabel(), items: state.cart.map(item => ({ ...item })), total, paid, remaining, change, paymentStatus: remaining > 0 ? 'partial' : 'paid' };
     state.sales.unshift(sale);
     state.cart = [];
     state.lastReceiptSaleId = sale.id;
-    state.notice = {
-      type: remaining > 0 ? 'warn' : 'ok',
-      text: remaining > 0
-        ? `تم البيع — خلص: ${fmt(paid)} د.م — باقي: ${fmt(remaining)} د.م`
-        : change > 0
-          ? `تم البيع — خلص: ${fmt(paid)} د.م — الصرف: ${fmt(change)} د.م`
-          : `تم البيع — خلص الزبون ${fmt(paid)} د.م كاملة`
-    };
+    state.notice = { type: remaining > 0 ? 'warn' : 'ok', text: remaining > 0 ? 'تم البيع — خلص: ' + fmt(paid) + ' د.م — باقي: ' + fmt(remaining) + ' د.م' : change > 0 ? 'تم البيع — خلص: ' + fmt(paid) + ' د.م — الصرف: ' + fmt(change) + ' د.م' : 'تم البيع — خلص الزبون ' + fmt(paid) + ' د.م كاملة' };
     playBeep('ok');
     save();
     render();
   };
 
-  window.printSaleReceipt = function (saleId) {
-    const sale = state.sales.find(s => s.id === saleId);
-    if (!sale) return;
-    const rows = sale.items.map(it => `<tr><td>${esc(it.name)} × ${it.qty}</td><td style="text-align:left;">${fmt(it.price * it.qty)}</td></tr>`).join('');
-    const paymentRows = sale.paid != null ? `
-      <div class="line"></div>
-      <table>
-        <tr><td>خلص الزبون</td><td style="text-align:left;">${fmt(sale.paid)} د.م</td></tr>
-        ${sale.remaining > 0 ? `<tr><td>الباقي</td><td style="text-align:left;">${fmt(sale.remaining)} د.م</td></tr>` : ''}
-        ${sale.change > 0 ? `<tr><td>الصرف</td><td style="text-align:left;">${fmt(sale.change)} د.م</td></tr>` : ''}
-      </table>` : '';
-    const body = `
-      <h2>إصلاحات حمزة</h2>
-      <p class="sub">${sale.date}${sale.returned ? ' — تم الإرجاع' : ''}</p>
-      <div class="line"></div>
-      <table>${rows}</table>
-      <div class="line"></div>
-      <div class="total"><span>المجموع</span><span>${fmt(sale.total)} د.م</span></div>
-      ${paymentRows}
-      <p class="foot">شكرا على تعاملكم معانا 🙏</p>`;
-    openPrintWindow(body, 'تيكيت البيع');
-  };
-
   window.renderSaleRow = function (s) {
     const html = oldRenderSaleRow(s);
     if (s.paid == null) return html;
-    const payment = `<div style="padding:8px 12px 12px; border-top:1px solid var(--border); font-size:12px; color:var(--muted);">
-      💵 خلص: <b style="color:var(--success);">${fmt(s.paid)} د.م</b>
-      ${s.remaining > 0 ? ` — باقي: <b style="color:var(--danger);">${fmt(s.remaining)} د.م</b>` : ''}
-      ${s.change > 0 ? ` — الصرف: <b style="color:var(--accent);">${fmt(s.change)} د.م</b>` : ''}
-    </div>`;
-    return html + payment;
+    return html + '<div style="padding:8px 12px 12px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);">💵 خلص: <b style="color:var(--success);">' + fmt(s.paid) + ' د.م</b>' + (s.remaining > 0 ? ' — باقي: <b style="color:var(--danger);">' + fmt(s.remaining) + ' د.م</b>' : '') + (s.change > 0 ? ' — الصرف: <b style="color:var(--accent);">' + fmt(s.change) + ' د.م</b>' : '') + '</div>';
   };
 
-  // إعادة الرسم حتى تتعرف الواجهة على الوظائف الجديدة.
   if (typeof render === 'function') render();
 })();
 `;
