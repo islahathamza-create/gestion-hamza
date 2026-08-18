@@ -52,12 +52,31 @@ async function startUpdateDownload(version) {
   }
 }
 
+function installDownloadedUpdate(version) {
+  if (updateDownloading) updateDownloading = false;
+  console.log('[Updater] installing downloaded update:', version);
+
+  // Give electron-updater a moment to finish writing the downloaded installer.
+  // Then quit the current process and let NSIS replace the installed files.
+  setTimeout(() => {
+    try {
+      autoUpdater.quitAndInstall(false, true);
+    } catch (error) {
+      console.error('[Updater install]', error);
+      try {
+        app.quit();
+      } catch (_) {}
+    }
+  }, 500);
+}
+
 function setupAutoUpdater() {
   if (!app.isPackaged) return;
 
   autoUpdater.autoDownload = false;
-  autoUpdater.autoInstallOnAppQuit = false;
+  autoUpdater.autoInstallOnAppQuit = true;
   autoUpdater.allowPrerelease = false;
+  autoUpdater.logger = console;
 
   autoUpdater.on('checking-for-update', () => {
     console.log('[Updater] checking for update');
@@ -80,21 +99,27 @@ function setupAutoUpdater() {
     updateDownloading = false;
     console.log('[Updater] update downloaded:', info.version);
 
-    if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (!mainWindow || mainWindow.isDestroyed()) {
+      installDownloadedUpdate(info.version);
+      return;
+    }
 
     dialog.showMessageBox(mainWindow, {
       type: 'info',
       title: 'Gestion Hamza — التحديث جاهز',
       message: `النسخة ${info.version} تحمّلات بنجاح.`,
-      detail: 'ضغط على «تثبيت الآن» باش يعاود البرنامج يفتح بالنسخة الجديدة.',
+      detail: 'ضغط على «تثبيت الآن» باش يسد البرنامج ويثبت النسخة الجديدة تلقائياً.',
       buttons: ['تثبيت الآن', 'لاحقاً'],
       defaultId: 0,
-      cancelId: 1
+      cancelId: 1,
+      noLink: true
     }).then(({ response }) => {
       if (response === 0) {
-        autoUpdater.quitAndInstall(false, true);
+        installDownloadedUpdate(info.version);
       }
-    }).catch(() => {});
+    }).catch(error => {
+      console.error('[Updater install dialog]', error);
+    });
   });
 
   autoUpdater.on('error', error => {
